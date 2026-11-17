@@ -159,7 +159,8 @@ dependencies are locked in `package-lock.json`.
 `.github/workflows/pages.yml` builds the release demo, checks account editing,
 IndexedDB persistence and offline reload with Chrome and WebKit, and uploads the
 exact tested output as a Pages artifact. A macOS WebDriver job loads that artifact
-in actual Safari. A passing WebKit check alone is not an actual Safari check;
+in actual Safari. Safari runs independently of publishing so macOS runner queues do not block the
+verified Chrome/WebKit demo. A passing WebKit check alone is not an actual Safari check;
 physical iPhone/iPad tests remain separate from desktop browser automation.
 
 The repository is public and Pages Source is **GitHub Actions**. Deployment uses
