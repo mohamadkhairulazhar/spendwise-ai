@@ -165,3 +165,22 @@ https://mohamadkhairulazhar.github.io/spendwise-ai/ once deployment succeeds.
 No custom domain is required. Chromium and Playwright WebKit are automated
 coverage; real Safari on macOS/iOS should also receive a device smoke test before
 claiming full Safari device certification.
+
+### Pages hosting setup
+
+An owner must enable **Settings → Pages → Source: GitHub Actions**. Repository
+plan/visibility must permit Pages hosting. The connected API in the implementation
+environment cannot administer Pages settings (it returns Forbidden). The workflow
+uses only `pages: write` and `id-token: write` for deployment, and targets the
+`github-pages` environment. PRs build and test; publication runs on `main` after
+review, or by manual dispatch once the workflow exists on the default branch.
+No merge or public deployment is implied by an open PR. The intended public URL
+is `https://mohamadkhairulazhar.github.io/spendwise-ai/` once hosting is enabled
+and a deployment succeeds. Only generated synthetic-demo assets are published.
+
+Chrome is checked with Playwright's Chrome channel, WebKit tests cover reload,
+editing, IndexedDB persistence and offline operation, and a macOS WebDriver job
+loads the build in actual Safari. Desktop/mobile native builds stay in their
+separate Flutter workflow. A passing WebKit job alone is not an actual Safari
+verification. All generated WASM/worker assets are rebuilt from the locked Dart
+dependencies. Browser automation dependencies are in `package-lock.json`.
