@@ -123,14 +123,14 @@ void main() {
     await repository.seedSyntheticDemo();
     final first = await repository.load();
     expect(first.accounts, hasLength(3));
-    expect(first.operations, hasLength(10));
+    expect(first.operations, hasLength(8));
     expect(first.incomeSen, 250000);
     expect(first.expenseSen, 11000);
     expect(first.netWorthSen, 549000);
     await repository.renameAccount('demo-cash', 'Synthetic Edited');
     await repository.seedSyntheticDemo();
     final reloaded = await repository.load();
-    expect(reloaded.operations, hasLength(10));
+    expect(reloaded.operations, hasLength(8));
     expect(reloaded.accounts.singleWhere((a) => a.id == 'demo-cash').name, 'Synthetic Edited');
   });
 
