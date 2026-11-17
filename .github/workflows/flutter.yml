@@ -1,10 +1,13 @@
 name: Flutter checks
 on:
   push:
-    branches: [feat/phase-1-offline-ledger]
+    branches: [main]
   pull_request:
 permissions:
   contents: read
+concurrency:
+  group: flutter-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   checks:
     runs-on: ubuntu-latest

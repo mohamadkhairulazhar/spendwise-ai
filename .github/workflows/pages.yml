@@ -2,7 +2,7 @@ name: Web demo and GitHub Pages
 on:
   pull_request:
   push:
-    branches: [main, feat/phase-1-offline-ledger]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
