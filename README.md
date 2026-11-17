@@ -102,15 +102,14 @@ app-private but is not additionally encrypted; OS backups are subject to device
 settings. Uninstalling the app can delete its database. Export/backup recovery
 and stronger storage protection are outside Phase 1.
 
-## Verification status
+## Verification
 
-The implementation environment initially had no Flutter or Dart SDK. Bootstrap
-was attempted with the official Flutter 3.35.7 source, but its SDK download from
-`storage.googleapis.com` was blocked with HTTP 403. Local Flutter formatting,
-static analysis, unit/widget tests and native builds therefore could not run at
-that stage. GitHub Actions is configured to run formatting, analysis, all tests,
-an Android debug APK build and a macOS iOS simulator build. Consult the PR checks
-for actual results; configuration alone is not evidence of a passing build.
+GitHub Actions runs Dart formatting, static analysis, 16 unit/widget tests,
+Android debug APK and iOS simulator builds, plus a release web build and browser
+checks. Run the same commands above locally. Browser checks use Chrome, WebKit
+and actual Safari via WebDriver on macOS. CI reports are available under the
+repository's Actions tab and the PR checks. Physical-device testing is not part
+of these automated checks.
 
 Native project templates come from Flutter 3.35.7; see
 `FLUTTER_TEMPLATE_LICENSE` for their license.
@@ -135,7 +134,7 @@ bash tool/build_web.sh
 python3 tool/serve_web.py
 # Open http://127.0.0.1:8080/spendwise-ai/
 npm ci
-npx playwright install --with-deps chromium webkit
+npx playwright install --with-deps chrome webkit
 npm run test:browser
 ```
 
@@ -168,13 +167,12 @@ claiming full Safari device certification.
 
 ### Pages hosting setup
 
-An owner must enable **Settings → Pages → Source: GitHub Actions**. Repository
-plan/visibility must permit Pages hosting. The connected API in the implementation
-environment cannot administer Pages settings (it returns Forbidden). The workflow
+The public repository uses **Settings → Pages → Source: GitHub Actions**. The workflow
 uses only `pages: write` and `id-token: write` for deployment, and targets the
-`github-pages` environment. PRs build and test; publication runs on `main` after
-review, or by manual dispatch once the workflow exists on the default branch.
-No merge or public deployment is implied by an open PR. The intended public URL
+`github-pages` environment. PRs build and test. Publication runs on `main`, by manual dispatch once the
+workflow exists on the default branch, or from the explicitly authorized initial
+`feat/phase-1-offline-ledger` PR in this repository. Other PRs and forks cannot
+publish. The initial demo deployment does not merge the PR. The intended public URL
 is `https://mohamadkhairulazhar.github.io/spendwise-ai/` once hosting is enabled
 and a deployment succeeds. Only generated synthetic-demo assets are published.
 

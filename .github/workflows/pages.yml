@@ -69,3 +69,11 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/deploy-pages@v4
         id: deployment
+      - name: Verify deployed app and SQLite assets
+        env:
+          DEMO_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 "$DEMO_URL" -o /tmp/spendwise-live.html
+          curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqlite3.wasm" -o /dev/null
+          curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqflite_sw.js" -o /dev/null
+          rg --fixed-strings --quiet '<base href="/spendwise-ai/">' /tmp/spendwise-live.html

@@ -17,7 +17,14 @@ test('synthetic ledger, editing, IndexedDB persistence and offline reload', asyn
   await expect(page.getByRole('button', {name: /^Synthetic Credit Card /})).toBeVisible();
   // Renaming exercises a browser SQLite write, rather than relying only on seed.
   await page.getByRole('button', {name: /^Synthetic Wallet /}).click();
-  await page.getByRole('textbox', {name: /Account name/}).fill('Synthetic Demo Pocket');
+  const nameField = page.getByRole('textbox', {name: /Account name/});
+  // Flutter replaces the semantics input on focus in WebKit. Use actual key
+  // events on the focused editor instead of filling its transient DOM proxy.
+  await nameField.click();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.type('Synthetic Demo Pocket', {delay: 30});
+  await page.keyboard.press('Tab');
   await page.getByRole('button', {name: 'Save account', exact: true}).click();
   await expect(page.getByRole('button', {name: /^Synthetic Demo Pocket /})).toBeVisible();
   await page.reload();

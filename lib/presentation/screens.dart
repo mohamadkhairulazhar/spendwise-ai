@@ -456,24 +456,37 @@ class _TransactionFormState extends State<TransactionForm> {
 
 /// Keeps the demo label inside the active route's accessibility tree.
 class FinanceScaffold extends StatelessWidget {
-  const FinanceScaffold({super.key, this.appBar, required this.body, this.floatingActionButton});
+  const FinanceScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.floatingActionButton,
+  });
   final PreferredSizeWidget? appBar;
   final Widget body;
   final Widget? floatingActionButton;
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: appBar,
-    body: Column(children: [
-      if (const bool.fromEnvironment('SPENDWISE_DEMO')) Material(
-        color: Colors.amber.shade100,
-        child: const SafeArea(bottom: false, child: Padding(
-          padding: EdgeInsets.all(8),
-          child: Text('SYNTHETIC DEMO · Invented MYR data · Do not enter real financial information',
-            textAlign: TextAlign.center),
-        )),
-      ),
-      Expanded(child: body),
-    ]),
+    body: Column(
+      children: [
+        if (const bool.fromEnvironment('SPENDWISE_DEMO'))
+          Material(
+            color: Colors.amber.shade100,
+            child: const SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  'SYNTHETIC DEMO · Invented MYR data · Do not enter real financial information',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+        Expanded(child: body),
+      ],
+    ),
     floatingActionButton: floatingActionButton,
   );
 }
