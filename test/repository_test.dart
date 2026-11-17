@@ -131,20 +131,31 @@ void main() {
     await repository.seedSyntheticDemo();
     final reloaded = await repository.load();
     expect(reloaded.operations, hasLength(8));
-    expect(reloaded.accounts.singleWhere((a) => a.id == 'demo-cash').name, 'Synthetic Edited');
+    expect(
+      reloaded.accounts.singleWhere((a) => a.id == 'demo-cash').name,
+      'Synthetic Edited',
+    );
   });
 
-  test('failure inserting second transfer posting rolls back the first', () async {
-    await account('bank', AccountType.bank, 1000);
-    await account('cash', AccountType.cash, 0);
-    final db = await databaseFactoryFfi.openDatabase(dbPath);
-    await db.execute("""CREATE TRIGGER synthetic_failure BEFORE INSERT ON postings
-      WHEN NEW.account_id = 'cash' BEGIN SELECT RAISE(ABORT, 'Synthetic failure'); END""");
-    await expectLater(record('atomic', OperationKind.transfer, 100, 'bank', 'cash'), throwsA(anything));
-    final data = await repository.load();
-    expect(data.operations, hasLength(2));
-    expect(data.accounts.singleWhere((a) => a.id == 'bank').balanceSen, 1000);
-  });
+  test(
+    'failure inserting second transfer posting rolls back the first',
+    () async {
+      await account('bank', AccountType.bank, 1000);
+      await account('cash', AccountType.cash, 0);
+      final db = await databaseFactoryFfi.openDatabase(dbPath);
+      await db.execute(
+        """CREATE TRIGGER synthetic_failure BEFORE INSERT ON postings
+      WHEN NEW.account_id = 'cash' BEGIN SELECT RAISE(ABORT, 'Synthetic failure'); END""",
+      );
+      await expectLater(
+        record('atomic', OperationKind.transfer, 100, 'bank', 'cash'),
+        throwsA(anything),
+      );
+      final data = await repository.load();
+      expect(data.operations, hasLength(2));
+      expect(data.accounts.singleWhere((a) => a.id == 'bank').balanceSen, 1000);
+    },
+  );
 
   test('concurrent spending cannot overdraw an account', () async {
     await account('bank', AccountType.bank, 1000);

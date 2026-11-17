@@ -43,13 +43,26 @@ class SqliteFinanceRepository implements FinanceRepository {
   Future<void> seedSyntheticDemo() => _db.transaction((txn) async {
     if ((await txn.query('accounts', limit: 1)).isNotEmpty) return;
     for (final account in DemoData.accounts) {
-      await txn.insert('accounts', {'id': account.id, 'name': account.name,
-        'type': account.type.name, 'created_at': _clock().toUtc().toIso8601String()});
-      await _record(txn, LedgerCommand(id: 'opening-${account.id}',
-        kind: OperationKind.opening, amountSen: account.balanceSen,
-        accountId: account.id, note: 'Synthetic opening balance'));
+      await txn.insert('accounts', {
+        'id': account.id,
+        'name': account.name,
+        'type': account.type.name,
+        'created_at': _clock().toUtc().toIso8601String(),
+      });
+      await _record(
+        txn,
+        LedgerCommand(
+          id: 'opening-${account.id}',
+          kind: OperationKind.opening,
+          amountSen: account.balanceSen,
+          accountId: account.id,
+          note: 'Synthetic opening balance',
+        ),
+      );
     }
-    for (final command in DemoData.commands) { await _record(txn, command); }
+    for (final command in DemoData.commands) {
+      await _record(txn, command);
+    }
   });
 
   Future<List<Account>> _accounts(DatabaseExecutor db) async {

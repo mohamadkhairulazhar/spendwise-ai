@@ -20,12 +20,6 @@ class SpendWiseApp extends StatelessWidget {
       colorSchemeSeed: const Color(0xff00695c),
       useMaterial3: true,
     ),
-    builder: (context, child) => const bool.fromEnvironment('SPENDWISE_DEMO')
-      ? Column(children: [Material(color: Colors.amber.shade100,
-          child: const SafeArea(bottom: false, child: Padding(padding: EdgeInsets.all(8),
-            child: Text('SYNTHETIC DEMO · Invented MYR data · Do not enter real financial information',
-              textAlign: TextAlign.center)))), Expanded(child: child!)])
-      : child!,
     home: const _Startup(),
   );
 }
@@ -48,10 +42,14 @@ class _StartupState extends State<_Startup> {
   Future<SqliteFinanceRepository> _open() async {
     const demo = bool.fromEnvironment('SPENDWISE_DEMO');
     final repository = await SqliteFinanceRepository.open(
-      databasePath: kIsWeb ? (demo ? 'spendwise-demo-v1.db' : 'spendwise.db') : null,
+      databasePath: kIsWeb
+          ? (demo ? 'spendwise-demo-v1.db' : 'spendwise.db')
+          : null,
     );
     if (demo) {
-      try { await repository.seedSyntheticDemo(); } catch (_) {
+      try {
+        await repository.seedSyntheticDemo();
+      } catch (_) {
         await repository.close();
         rethrow;
       }

@@ -34,7 +34,7 @@ class FinanceHome extends StatelessWidget {
     final debt = data.accounts
         .where((a) => a.isLiability)
         .fold(0, (s, a) => s + a.balanceSen);
-    return Scaffold(
+    return FinanceScaffold(
       appBar: AppBar(
         title: const Text('SpendWise AI'),
         actions: [
@@ -200,7 +200,7 @@ class _AccountFormState extends State<AccountForm> {
   @override
   Widget build(BuildContext context) {
     final model = context.watch<FinanceController>();
-    return Scaffold(
+    return FinanceScaffold(
       appBar: AppBar(
         title: Text(widget.account == null ? 'Add account' : 'Rename account'),
       ),
@@ -332,7 +332,7 @@ class _TransactionFormState extends State<TransactionForm> {
                   : !a.isLiability),
         )
         .toList();
-    return Scaffold(
+    return FinanceScaffold(
       appBar: AppBar(title: const Text('New transaction')),
       body: Form(
         key: _form,
@@ -452,4 +452,28 @@ class _TransactionFormState extends State<TransactionForm> {
       ),
     );
   }
+}
+
+/// Keeps the demo label inside the active route's accessibility tree.
+class FinanceScaffold extends StatelessWidget {
+  const FinanceScaffold({super.key, this.appBar, required this.body, this.floatingActionButton});
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+  final Widget? floatingActionButton;
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: appBar,
+    body: Column(children: [
+      if (const bool.fromEnvironment('SPENDWISE_DEMO')) Material(
+        color: Colors.amber.shade100,
+        child: const SafeArea(bottom: false, child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Text('SYNTHETIC DEMO · Invented MYR data · Do not enter real financial information',
+            textAlign: TextAlign.center),
+        )),
+      ),
+      Expanded(child: body),
+    ]),
+    floatingActionButton: floatingActionButton,
+  );
 }
