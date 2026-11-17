@@ -75,4 +75,7 @@ jobs:
           curl -fsSL --retry 5 --retry-delay 5 "$DEMO_URL" -o /tmp/spendwise-live.html
           curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqlite3.wasm" -o /dev/null
           curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqflite_sw.js" -o /dev/null
-          rg --fixed-strings --quiet '<base href="/spendwise-ai/">' /tmp/spendwise-live.html
+          python3 - <<'PY'
+          from pathlib import Path
+          assert '<base href="/spendwise-ai/">' in Path('/tmp/spendwise-live.html').read_text()
+          PY
