@@ -6,7 +6,7 @@ module.exports = defineConfig({
   retries: 0,
   use: {baseURL: 'http://127.0.0.1:8080/spendwise-ai/', trace: 'retain-on-failure'},
   projects: [
-    {name: 'chromium', use: {browserName: 'chromium'}},
+    {name: 'chromium', use: {browserName: 'chromium', channel: 'chrome'}},
     {name: 'webkit', use: {browserName: 'webkit'}},
   ],
   webServer: {command: 'python3 tool/serve_web.py', url: 'http://127.0.0.1:8080/spendwise-ai/', reuseExistingServer: false},

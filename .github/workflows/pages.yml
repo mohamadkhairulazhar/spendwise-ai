@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   web:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -25,7 +25,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps chrome webkit
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4
         if: failure()
@@ -37,12 +37,29 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
-  deploy:
+  safari:
     needs: web
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: /tmp/spendwise-pages
+      - run: |
+          mkdir -p build/web
+          tar -xf /tmp/spendwise-pages/artifact.tar -C build/web
+          python3 tool/serve_web.py > /tmp/spendwise-server.log 2>&1 &
+          sudo safaridriver --enable
+          python3 -m venv /tmp/spendwise-safari
+          /tmp/spendwise-safari/bin/pip install selenium==4.38.0
+          /tmp/spendwise-safari/bin/python browser_test/safari_smoke.py
+  deploy:
+    needs: [web, safari]
     # PRs build/test only. Main deploys after review; an owner can also dispatch
     # this workflow manually against a reviewed ref without merging code.
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
