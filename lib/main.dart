@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 
 import 'data/sqlite_finance_repository.dart';
@@ -15,7 +16,16 @@ class SpendWiseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'SpendWise AI',
-    theme: ThemeData(colorSchemeSeed: const Color(0xff00695c), useMaterial3: true),
+    theme: ThemeData(
+      colorSchemeSeed: const Color(0xff00695c),
+      useMaterial3: true,
+    ),
+    builder: (context, child) => const bool.fromEnvironment('SPENDWISE_DEMO')
+      ? Column(children: [Material(color: Colors.amber.shade100,
+          child: const SafeArea(bottom: false, child: Padding(padding: EdgeInsets.all(8),
+            child: Text('SYNTHETIC DEMO · Invented MYR data · Do not enter real financial information',
+              textAlign: TextAlign.center)))), Expanded(child: child!)])
+      : child!,
     home: const _Startup(),
   );
 }
@@ -34,29 +44,59 @@ class _StartupState extends State<_Startup> {
     super.initState();
     _opening = _open();
   }
+
   Future<SqliteFinanceRepository> _open() async {
-    final repository = await SqliteFinanceRepository.open();
+    const demo = bool.fromEnvironment('SPENDWISE_DEMO');
+    final repository = await SqliteFinanceRepository.open(
+      databasePath: kIsWeb ? (demo ? 'spendwise-demo-v1.db' : 'spendwise.db') : null,
+    );
+    if (demo) {
+      try { await repository.seedSyntheticDemo(); } catch (_) {
+        await repository.close();
+        rethrow;
+      }
+    }
     _repository = repository;
     return repository;
   }
+
   @override
   void dispose() {
     _repository?.close();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) => FutureBuilder<SqliteFinanceRepository>(
     future: _opening,
     builder: (context, state) {
       if (state.hasError) {
-        return Scaffold(body: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Unable to open local storage. Your data has not been reset.'),
-          FilledButton(onPressed: () => setState(() { _opening = _open(); }), child: const Text('Retry')),
-        ])));
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Unable to open local storage. Your data has not been reset.',
+                ),
+                FilledButton(
+                  onPressed: () => setState(() {
+                    _opening = _open();
+                  }),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
       }
-      if (!state.hasData) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      return ChangeNotifierProvider(create: (_) => FinanceController(state.data!)..refresh(),
-        child: const FinanceHome());
+      if (!state.hasData) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+      return ChangeNotifierProvider(
+        create: (_) => FinanceController(state.data!)..refresh(),
+        child: const FinanceHome(),
+      );
     },
   );
 }

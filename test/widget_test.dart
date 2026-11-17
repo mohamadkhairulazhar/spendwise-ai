@@ -12,11 +12,17 @@ class FakeRepository implements FinanceRepository {
   @override
   Future<LedgerSnapshot> load() async => const LedgerSnapshot([], []);
   @override
-  Future<void> createAccount({required String id, required String operationId,
-    required String name, required AccountType type, required int openingSen}) async {
+  Future<void> createAccount({
+    required String id,
+    required String operationId,
+    required String name,
+    required AccountType type,
+    required int openingSen,
+  }) async {
     if (fail) throw const LedgerException('Synthetic storage failure');
     savedName = name;
   }
+
   @override
   Future<void> record(LedgerCommand command) async {}
   @override
@@ -26,21 +32,36 @@ class FakeRepository implements FinanceRepository {
 }
 
 void main() {
-  testWidgets('empty accounts screen gives an offline starting point', (tester) async {
-    await tester.pumpWidget(ChangeNotifierProvider(create: (_) => FinanceController(FakeRepository()),
-      child: const MaterialApp(home: FinanceHome())));
+  testWidgets('empty accounts screen gives an offline starting point', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => FinanceController(FakeRepository()),
+        child: const MaterialApp(home: FinanceHome()),
+      ),
+    );
     expect(find.text('MYR · Stored on this device · Offline'), findsOneWidget);
     expect(find.text('Add account'), findsOneWidget);
     expect(find.text('No operations yet.'), findsOneWidget);
   });
-  testWidgets('account form validates input and displays repository errors', (tester) async {
+  testWidgets('account form validates input and displays repository errors', (
+    tester,
+  ) async {
     final repository = FakeRepository()..fail = true;
-    await tester.pumpWidget(ChangeNotifierProvider(create: (_) => FinanceController(repository),
-      child: const MaterialApp(home: AccountForm())));
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => FinanceController(repository),
+        child: const MaterialApp(home: AccountForm()),
+      ),
+    );
     await tester.tap(find.text('Save account'));
     await tester.pump();
     expect(find.text('Enter a name.'), findsOneWidget);
-    await tester.enterText(find.byType(TextFormField).first, 'Synthetic Wallet');
+    await tester.enterText(
+      find.byType(TextFormField).first,
+      'Synthetic Wallet',
+    );
     await tester.enterText(find.byType(TextFormField).last, '1.005');
     await tester.tap(find.text('Save account'));
     await tester.pump();

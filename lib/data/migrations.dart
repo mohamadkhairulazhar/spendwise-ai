@@ -26,12 +26,16 @@ abstract final class Migrations {
     }
     if (from < 2 && to >= 2) {
       await db.execute('CREATE INDEX postings_account ON postings(account_id)');
-      await db.execute("CREATE UNIQUE INDEX one_opening_per_account ON operations(account_id) WHERE kind = 'opening'");
+      await db.execute(
+        "CREATE UNIQUE INDEX one_opening_per_account ON operations(account_id) WHERE kind = 'opening'",
+      );
       for (final table in ['operations', 'postings']) {
         for (final action in ['UPDATE', 'DELETE']) {
-          await db.execute('''CREATE TRIGGER ${table}_${action.toLowerCase()}_forbidden
+          await db.execute(
+            '''CREATE TRIGGER ${table}_${action.toLowerCase()}_forbidden
             BEFORE $action ON $table BEGIN
-            SELECT RAISE(ABORT, 'Ledger history is immutable'); END''');
+            SELECT RAISE(ABORT, 'Ledger history is immutable'); END''',
+          );
         }
       }
       await db.execute('''CREATE TRIGGER account_identity_immutable

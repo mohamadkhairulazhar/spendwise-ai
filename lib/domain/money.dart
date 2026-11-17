@@ -3,11 +3,14 @@ abstract final class Money {
   static const maxSen = 999999999999;
 
   static int parse(String value) {
-    final match = RegExp(r'^(\d{1,10})(?:\.(\d{1,2}))?$').firstMatch(value.trim());
+    final match = RegExp(
+      r'^(\d{1,10})(?:\.(\d{1,2}))?$',
+    ).firstMatch(value.trim());
     if (match == null) {
       throw const FormatException('Enter MYR with up to two decimal places.');
     }
-    final sen = int.parse(match[1]!) * 100 +
+    final sen =
+        int.parse(match[1]!) * 100 +
         int.parse((match[2] ?? '').padRight(2, '0'));
     if (sen > maxSen) throw const FormatException('Amount is too large.');
     return sen;

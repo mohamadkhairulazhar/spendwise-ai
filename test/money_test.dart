@@ -8,7 +8,17 @@ void main() {
     expect(Money.parse(' 123.45 '), 12345);
     expect(Money.parse('9999999999.99'), Money.maxSen);
     expect(Money.parse('0'), 0);
-    for (final value in ['', '-1', '1.001', 'NaN', '1e3', '1,000', '.50', '1.', '10000000000']) {
+    for (final value in [
+      '',
+      '-1',
+      '1.001',
+      'NaN',
+      '1e3',
+      '1,000',
+      '.50',
+      '1.',
+      '10000000000',
+    ]) {
       expect(() => Money.parse(value), throwsFormatException);
     }
   });

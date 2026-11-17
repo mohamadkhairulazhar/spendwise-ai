@@ -1,6 +1,7 @@
 import 'money.dart';
 
 enum AccountType { bank, cash, creditCard }
+
 enum OperationKind { opening, income, expense, transfer, purchase, repayment }
 
 class LedgerException implements Exception {
@@ -15,6 +16,7 @@ class Account {
   final String id;
   final String name;
   final AccountType type;
+
   /// Positive for assets held or credit card debt owed.
   final int balanceSen;
   bool get isLiability => type == AccountType.creditCard;
@@ -60,24 +62,31 @@ class LedgerSnapshot {
       .where((e) => kinds.contains(e.command.kind))
       .fold(0, (sum, e) => sum + e.command.amountSen);
   int get netWorthSen => accounts.fold(
-      0, (sum, a) => sum + (a.isLiability ? -a.balanceSen : a.balanceSen));
+    0,
+    (sum, a) => sum + (a.isLiability ? -a.balanceSen : a.balanceSen),
+  );
 }
 
 /// Pure, deterministic rules. Storage calls this inside its write transaction.
 abstract final class Ledger {
   static List<Posting> plan(LedgerCommand command, List<Account> accounts) {
     if (command.id.trim().isEmpty || command.note.length > 240) {
-      throw const LedgerException('Invalid reference or note (maximum 240 characters).');
+      throw const LedgerException(
+        'Invalid reference or note (maximum 240 characters).',
+      );
     }
     final opening = command.kind == OperationKind.opening;
     if (command.amountSen < (opening ? 0 : 1) ||
         command.amountSen > Money.maxSen) {
       throw const LedgerException('Enter a valid positive amount in sen.');
     }
-    Account find(String? id) => accounts.firstWhere((a) => a.id == id,
-        orElse: () => throw const LedgerException('Account does not exist.'));
+    Account find(String? id) => accounts.firstWhere(
+      (a) => a.id == id,
+      orElse: () => throw const LedgerException('Account does not exist.'),
+    );
     final account = find(command.accountId);
-    final paired = command.kind == OperationKind.transfer ||
+    final paired =
+        command.kind == OperationKind.transfer ||
         command.kind == OperationKind.repayment;
     if (!paired && command.otherAccountId != null) {
       throw const LedgerException('This operation takes one account.');
@@ -87,14 +96,19 @@ abstract final class Ledger {
       throw const LedgerException('Choose two different accounts.');
     }
     void requireCash(Account a) {
-      if (a.isLiability) throw const LedgerException('Choose a bank or cash account.');
+      if (a.isLiability) {
+        throw const LedgerException('Choose a bank or cash account.');
+      }
     }
+
     final amount = command.amountSen;
     final List<Posting> postings;
     switch (command.kind) {
       case OperationKind.opening:
         if (account.balanceSen != 0) {
-          throw const LedgerException('Opening balance requires a new account.');
+          throw const LedgerException(
+            'Opening balance requires a new account.',
+          );
         }
         postings = [Posting(account.id, amount)];
       case OperationKind.income:
@@ -122,7 +136,9 @@ abstract final class Ledger {
     for (final posting in postings) {
       final balance = find(posting.accountId).balanceSen + posting.deltaSen;
       if (balance < 0 || balance > Money.maxSen) {
-        throw const LedgerException('Insufficient balance, excess repayment, or balance limit exceeded.');
+        throw const LedgerException(
+          'Insufficient balance, excess repayment, or balance limit exceeded.',
+        );
       }
     }
     return List.unmodifiable(postings);

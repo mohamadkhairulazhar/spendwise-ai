@@ -13,3 +13,8 @@ ios/Flutter/ephemeral/
 ios/Flutter/Generated.xcconfig
 ios/Flutter/flutter_export_environment.sh
 .DS_Store
+web/sqlite3.wasm
+web/sqflite_sw.js
+node_modules/
+playwright-report/
+test-results/

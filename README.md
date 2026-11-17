@@ -114,3 +114,54 @@ for actual results; configuration alone is not evidence of a passing build.
 
 Native project templates come from Flutter 3.35.7; see
 `FLUTTER_TEMPLATE_LICENSE` for their license.
+
+## Web demo (Chrome and Safari)
+
+The web build uses the same ledger, migrations and SQLite repository as mobile.
+A conditional adapter selects `sqflite_common_ffi_web` 1.0.2 (SQLite WASM backed by
+IndexedDB). Modern Chrome and Safari 16+ are targets. SharedWorker coordinates
+SQLite access across tabs when supported. Browsers falling back to a dedicated
+worker should use one tab at a time. Private browsing/storage restrictions or
+quota exhaustion can prevent persistence; startup shows a retry error rather
+than silently replacing the database. Browser storage can be cleared by the user
+or evicted by the OS and is not a backup.
+
+```sh
+flutter pub get
+dart run sqflite_common_ffi_web:setup --force
+flutter run -d chrome --web-port 8080 --dart-define=SPENDWISE_DEMO=true
+# Production-equivalent Pages build, including worker and WASM setup:
+bash tool/build_web.sh
+python3 tool/serve_web.py
+# Open http://127.0.0.1:8080/spendwise-ai/
+npm ci
+npx playwright install --with-deps chromium webkit
+npm run test:browser
+```
+
+`SPENDWISE_DEMO=true` seeds a dedicated `spendwise-demo-v1.db` once, only when
+empty, with invented bank/wallet/card balances, income, spending, transfer and
+repayment. The entire seed is atomic. Its expected net worth is **RM5,490.00**,
+income **RM2,500.00**, expenses **RM110.00**, and card debt **RM85.00**. Reloads
+preserve changes. A visible banner labels every demo screen and asks visitors
+not to enter real financial information. There are no real customer details in
+source, fixtures or deployed assets. Normal mobile runs remain empty; demo mode
+is opt-in. All visitors' edits remain in their own browser; no data is uploaded.
+
+The Pages base path is `/spendwise-ai/`, including the trailing slash. Worker,
+WASM, CanvasKit and bundled Roboto font assets are served locally. Flutter's
+service worker supports offline reload after the first successful load and
+activation; the very first visit requires network access. No cross-origin
+isolation headers or SharedArrayBuffer are required for SQLite.
+
+`.github/workflows/pages.yml` builds and runs Chromium and WebKit persistence /
+offline smoke tests on PRs. It uploads the exact tested output as a Pages
+artifact. Deployment runs on `main` after merge, or an explicit workflow dispatch
+of a reviewed ref. PRs never publish automatically. In GitHub **Settings → Pages**,
+select **GitHub Actions** as the build source and permit deployment from the
+chosen ref in the `github-pages` environment. A private repository may need a
+Pages-capable GitHub plan. The expected URL is
+https://mohamadkhairulazhar.github.io/spendwise-ai/ once deployment succeeds.
+No custom domain is required. Chromium and Playwright WebKit are automated
+coverage; real Safari on macOS/iOS should also receive a device smoke test before
+claiming full Safari device certification.

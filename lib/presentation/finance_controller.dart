@@ -23,7 +23,8 @@ class FinanceController extends ChangeNotifier {
       error = e.message;
       return false;
     } catch (_) {
-      error = 'Could not access local data. Retry; no partial transaction is saved.';
+      error =
+          'Could not access local data. Retry; no partial transaction is saved.';
       return false;
     } finally {
       busy = false;
@@ -31,19 +32,30 @@ class FinanceController extends ChangeNotifier {
     }
   }
 
-  Future<bool> refresh() => _run(() async { snapshot = await repository.load(); });
+  Future<bool> refresh() => _run(() async {
+    snapshot = await repository.load();
+  });
 
   Future<void> _reloadAfterWrite() async {
-    try { snapshot = await repository.load(); } catch (_) {
-      error = 'Saved locally. Could not refresh the view; tap Refresh before recording more.';
+    try {
+      snapshot = await repository.load();
+    } catch (_) {
+      error =
+          'Saved locally. Could not refresh the view; tap Refresh before recording more.';
     }
   }
 
-  Future<bool> createAccount(String name, AccountType type, int openingSen) => _run(() async {
-    await repository.createAccount(id: const Uuid().v4(), operationId: const Uuid().v4(),
-      name: name, type: type, openingSen: openingSen);
-    await _reloadAfterWrite();
-  });
+  Future<bool> createAccount(String name, AccountType type, int openingSen) =>
+      _run(() async {
+        await repository.createAccount(
+          id: const Uuid().v4(),
+          operationId: const Uuid().v4(),
+          name: name,
+          type: type,
+          openingSen: openingSen,
+        );
+        await _reloadAfterWrite();
+      });
 
   Future<bool> renameAccount(String id, String name) => _run(() async {
     await repository.renameAccount(id, name);
