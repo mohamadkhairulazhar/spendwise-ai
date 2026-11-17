@@ -70,7 +70,7 @@ owed (a positive card posting increases a liability). Net worth subtracts debt.
 This is a personal-finance ledger, not a general-purpose double-entry accounting
 system. Reports are all-time totals and exclude opening balances.
 
-Each operation stores a stable UUID, SQLite sequence, UTC recorded timestamp,
+Each operation stores a stable reference (UUID for user entry), SQLite sequence, UTC recorded timestamp,
 kind, integer amount, account references, note and postings. Sequence determines
 audit ordering even when timestamps match. A new account and its opening posting
 (including zero) are created atomically. One opening per account is enforced.
@@ -116,20 +116,19 @@ Native project templates come from Flutter 3.35.7; see
 
 ## Web demo (Chrome and Safari)
 
-The web build uses the same ledger, migrations and SQLite repository as mobile.
-A conditional adapter selects `sqflite_common_ffi_web` 1.0.2 (SQLite WASM backed by
-IndexedDB). Modern Chrome and Safari 16+ are targets. SharedWorker coordinates
-SQLite access across tabs when supported. Browsers falling back to a dedicated
-worker should use one tab at a time. Private browsing/storage restrictions or
-quota exhaustion can prevent persistence; startup shows a retry error rather
-than silently replacing the database. Browser storage can be cleared by the user
-or evicted by the OS and is not a backup.
+The web app shares the mobile ledger, migrations and SQLite repository. A
+conditional adapter uses `sqflite_common_ffi_web` 1.0.2: SQLite WebAssembly with
+IndexedDB persistence. Modern Chrome and Safari 16+ are targets. SharedWorker
+coordinates cross-tab access; browsers falling back to a dedicated worker should
+use one tab at a time. Restricted/private browsing or storage quota exhaustion
+can prevent persistence; the app reports an error instead of silently resetting.
+Browser storage can be evicted or cleared and is not a backup.
 
 ```sh
 flutter pub get
 dart run sqflite_common_ffi_web:setup --force
 flutter run -d chrome --web-port 8080 --dart-define=SPENDWISE_DEMO=true
-# Production-equivalent Pages build, including worker and WASM setup:
+# Build exactly as Pages does, then serve at its real subdirectory:
 bash tool/build_web.sh
 python3 tool/serve_web.py
 # Open http://127.0.0.1:8080/spendwise-ai/
@@ -138,47 +137,48 @@ npx playwright install --with-deps chrome webkit
 npm run test:browser
 ```
 
-`SPENDWISE_DEMO=true` seeds a dedicated `spendwise-demo-v1.db` once, only when
-empty, with invented bank/wallet/card balances, income, spending, transfer and
-repayment. The entire seed is atomic. Its expected net worth is **RM5,490.00**,
-income **RM2,500.00**, expenses **RM110.00**, and card debt **RM85.00**. Reloads
-preserve changes. A visible banner labels every demo screen and asks visitors
-not to enter real financial information. There are no real customer details in
-source, fixtures or deployed assets. Normal mobile runs remain empty; demo mode
-is opt-in. All visitors' edits remain in their own browser; no data is uploaded.
+`SPENDWISE_DEMO=true` atomically seeds a dedicated `spendwise-demo-v1.db` once,
+only when empty. All names and amounts are invented. The sample includes opening
+balances, income, expenses, a transfer, a card purchase and a repayment. Expected
+net worth is **RM5,490.00**, income **RM2,500.00**, expenses **RM110.00**, and card
+debt **RM85.00**. Reloads preserve edits. The visible banner labels every finance
+screen as a synthetic demo and asks visitors not to enter real financial data.
+Normal mobile runs start empty. No financial data is uploaded or shared between
+visitors; each browser has its own database.
 
-The Pages base path is `/spendwise-ai/`, including the trailing slash. Worker,
-WASM, CanvasKit and bundled Roboto font assets are served locally. Flutter's
-service worker supports offline reload after the first successful load and
-activation; the very first visit requires network access. No cross-origin
-isolation headers or SharedArrayBuffer are required for SQLite.
+The Pages base path is **`/spendwise-ai/`**, including its trailing slash. Worker,
+WASM, CanvasKit and the bundled Roboto font are served locally. The build script
+normalizes the service worker to its Pages subdirectory and precaches all bundled
+assets. Offline reload works after the first online load and service-worker
+activation. SQLite requires no SharedArrayBuffer or cross-origin isolation headers.
+Generated SQLite assets are recreated from locked Dart dependencies; browser test
+dependencies are locked in `package-lock.json`.
 
-`.github/workflows/pages.yml` builds and runs Chromium and WebKit persistence /
-offline smoke tests on PRs. It uploads the exact tested output as a Pages
-artifact. Deployment runs on `main` after merge, or an explicit workflow dispatch
-of a reviewed ref. PRs never publish automatically. In GitHub **Settings → Pages**,
-select **GitHub Actions** as the build source and permit deployment from the
-chosen ref in the `github-pages` environment. A private repository may need a
-Pages-capable GitHub plan. The expected URL is
-https://mohamadkhairulazhar.github.io/spendwise-ai/ once deployment succeeds.
-No custom domain is required. Chromium and Playwright WebKit are automated
-coverage; real Safari on macOS/iOS should also receive a device smoke test before
-claiming full Safari device certification.
+### Build, browser checks and deployment
 
-### Pages hosting setup
+`.github/workflows/pages.yml` builds the release demo, checks account editing,
+IndexedDB persistence and offline reload with Chrome and WebKit, and uploads the
+exact tested output as a Pages artifact. A macOS WebDriver job loads that artifact
+in actual Safari. A passing WebKit check alone is not an actual Safari check;
+physical iPhone/iPad tests remain separate from desktop browser automation.
 
-The public repository uses **Settings → Pages → Source: GitHub Actions**. The workflow
-uses only `pages: write` and `id-token: write` for deployment, and targets the
-`github-pages` environment. PRs build and test. Publication runs on `main`, by manual dispatch once the
-workflow exists on the default branch, or from the explicitly authorized initial
-`feat/phase-1-offline-ledger` PR in this repository. Other PRs and forks cannot
-publish. The initial demo deployment does not merge the PR. The intended public URL
-is `https://mohamadkhairulazhar.github.io/spendwise-ai/` once hosting is enabled
-and a deployment succeeds. Only generated synthetic-demo assets are published.
+The repository is public and Pages Source is **GitHub Actions**. Deployment uses
+the `github-pages` environment and only `pages: write` / `id-token: write` in the
+deployment job. Main-branch builds and manual dispatch can publish. The explicitly
+authorized initial `feat/phase-1-offline-ledger` PR in this repository may also
+publish without merging; other PRs and forks cannot publish. Only generated
+synthetic-demo assets are deployed. The deployment job checks the live app base
+path and the SQLite WASM/worker URLs.
 
-Chrome is checked with Playwright's Chrome channel, WebKit tests cover reload,
-editing, IndexedDB persistence and offline operation, and a macOS WebDriver job
-loads the build in actual Safari. Desktop/mobile native builds stay in their
-separate Flutter workflow. A passing WebKit job alone is not an actual Safari
-verification. All generated WASM/worker assets are rebuilt from the locked Dart
-dependencies. Browser automation dependencies are in `package-lock.json`.
+Demo URL: https://mohamadkhairulazhar.github.io/spendwise-ai/
+
+The Flutter workflow separately checks formatting, analysis, all 16 unit/widget
+tests and Android/iOS builds. Native apps retain platform SQLite storage and do
+not depend on any web assets or hosting service. See the PR's Actions checks for
+the results associated with each revision.
+
+The Playwright WebKit **offline-emulation** case is explicitly skipped because
+`context.setOffline(true)` produces an internal navigation error in that engine.
+Its online editing and IndexedDB reload checks still run. Offline operation is
+checked in Chrome and in actual Safari, where the test stops the HTTP server
+before reloading instead of using emulated network flags.
