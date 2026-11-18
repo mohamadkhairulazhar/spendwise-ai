@@ -156,9 +156,14 @@ dependencies are locked in `package-lock.json`.
 
 ### Build, browser checks and deployment
 
-`.github/workflows/pages.yml` builds the release demo, checks account editing,
-IndexedDB persistence and offline reload with Chrome and WebKit, and uploads the
-exact tested output as a Pages artifact. A macOS WebDriver job loads that artifact
+`.github/workflows/pages.yml` builds the release demo and runs browser integration
+checks in Chrome and WebKit before uploading the exact tested output as a Pages
+artifact. The checks cover account creation and opening balances for bank, cash
+and credit cards; income, expenses, transfers, card purchases and repayments;
+invalid precision and over-repayment rejection; unchanged reporting totals for
+transfers/repayments; audit postings; and persistence after browser reload. Chrome
+also checks offline reload. Each scenario uses a fresh synthetic browser context;
+no test writes financial data to a backend. A macOS WebDriver job loads that artifact
 in actual Safari. Safari runs independently of publishing so macOS runner queues do not block the
 verified Chrome/WebKit demo. A passing WebKit check alone is not an actual Safari check;
 physical iPhone/iPad tests remain separate from desktop browser automation.
