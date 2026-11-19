@@ -66,8 +66,7 @@ class _ActivitySectionState extends State<ActivitySection> {
         Semantics(
           container: true,
           explicitChildNodes: true,
-          child:
-          TextField(
+          child: TextField(
             key: const ValueKey('activity-search'),
             controller: _search,
             focusNode: _searchFocus,
@@ -90,9 +89,12 @@ class _ActivitySectionState extends State<ActivitySection> {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          'Group by',
-          style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+        Semantics(
+          container: true,
+          child: Text(
+            'Group by',
+            style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+          ),
         ),
         const SizedBox(height: 4),
         Row(
@@ -147,6 +149,7 @@ class _ActivitySectionState extends State<ActivitySection> {
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 10),
             child: Semantics(
+              container: true,
               header: true,
               child: Text(
                 activityGroupLabel(group.period, _grouping),

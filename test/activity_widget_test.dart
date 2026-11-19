@@ -171,21 +171,33 @@ void main() {
       controller.dispose();
     },
   );
-  testWidgets('search applies the latest query and cancels pending work on disposal', (tester) async {
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
-      child: ActivitySection(operations: operations, accounts: accounts)))));
-    await tester.enterText(find.byType(TextField), 'payment');
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.enterText(find.byType(TextField), 'groceries');
-    await tester.pump(const Duration(milliseconds: 300));
-    await tester.pumpAndSettle();
-    expect(find.text('1 entry'), findsOneWidget);
-    expect(find.text('Synthetic groceries'), findsOneWidget);
-    expect(find.text('Synthetic card payment'), findsNothing);
-    await tester.enterText(find.byType(TextField), 'wallet');
-    await tester.pumpWidget(const SizedBox());
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(tester.takeException(), isNull);
-  });
-
+  testWidgets(
+    'search applies the latest query and cancels pending work on disposal',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ActivitySection(
+                operations: operations,
+                accounts: accounts,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.enterText(find.byType(TextField), 'payment');
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.enterText(find.byType(TextField), 'groceries');
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
+      expect(find.text('1 entry'), findsOneWidget);
+      expect(find.text('Synthetic groceries'), findsOneWidget);
+      expect(find.text('Synthetic card payment'), findsNothing);
+      await tester.enterText(find.byType(TextField), 'wallet');
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
