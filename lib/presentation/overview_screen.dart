@@ -258,7 +258,9 @@ class _FinanceHomeState extends State<FinanceHome> {
                           onTap: model.busy
                               ? null
                               : () => open(
-                                  AccountHistoryScreen(accountId: data.accounts[i].id),
+                                  AccountHistoryScreen(
+                                    accountId: data.accounts[i].id,
+                                  ),
                                 ),
                         ),
                       ],

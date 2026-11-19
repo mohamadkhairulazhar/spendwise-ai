@@ -19,30 +19,36 @@ List<AuditOperation> filterActivity(
 }) {
   final terms = _normalize(query).split(' ').where((term) => term.isNotEmpty);
   final names = {for (final account in accounts) account.id: account};
-  return List.unmodifiable(operations.where((operation) {
-    if (accountId != null &&
-        !operation.postings.any((posting) => posting.accountId == accountId)) {
-      return false;
-    }
-    final command = operation.command;
-    final date = operation.recordedAt.toLocal();
-    final text = _normalize([
-      command.note,
-      command.id,
-      operationLabel(command.kind),
-      myr(command.amountSen),
-      date.toIso8601String(),
-      '${date.day} ${activityMonths[date.month - 1]} ${date.year}',
-      for (final posting in operation.postings) ...[
-        posting.accountId,
-        names[posting.accountId]?.name ?? '',
-        if (names.containsKey(posting.accountId))
-          accountLabel(names[posting.accountId]!.type),
-        myr(posting.deltaSen),
-      ],
-    ].join(' '));
-    return terms.every(text.contains);
-  }));
+  return List.unmodifiable(
+    operations.where((operation) {
+      if (accountId != null &&
+          !operation.postings.any(
+            (posting) => posting.accountId == accountId,
+          )) {
+        return false;
+      }
+      final command = operation.command;
+      final date = operation.recordedAt.toLocal();
+      final text = _normalize(
+        [
+          command.note,
+          command.id,
+          operationLabel(command.kind),
+          myr(command.amountSen),
+          date.toIso8601String(),
+          '${date.day} ${activityMonths[date.month - 1]} ${date.year}',
+          for (final posting in operation.postings) ...[
+            posting.accountId,
+            names[posting.accountId]?.name ?? '',
+            if (names.containsKey(posting.accountId))
+              accountLabel(names[posting.accountId]!.type),
+            myr(posting.deltaSen),
+          ],
+        ].join(' '),
+      );
+      return terms.every(text.contains);
+    }),
+  );
 }
 
 String _normalize(String value) => value
@@ -92,6 +98,16 @@ String activityGroupLabel(
 }
 
 const activityMonths = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];

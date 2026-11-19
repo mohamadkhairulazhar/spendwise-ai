@@ -65,7 +65,12 @@ void main() {
         await tester.tap(find.text('Accounts'));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        await tester.ensureVisible(find.text('A long synthetic bank account name'));
+        await tester.scrollUntilVisible(
+          find.text('A long synthetic bank account name'),
+          180,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text('A long synthetic bank account name'));
         await tester.pumpAndSettle();
         expect(find.byType(AccountHistoryScreen), findsOneWidget);
