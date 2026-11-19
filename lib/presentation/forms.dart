@@ -55,7 +55,7 @@ class _AccountFormState extends State<AccountForm> {
             const SizedBox(height: 12),
             if (widget.account == null) ...[
               DropdownButtonFormField<AccountType>(
-              isExpanded: true,
+                isExpanded: true,
                 initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Account type'),
                 items: AccountType.values
@@ -235,7 +235,14 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
               items: sources
                   .map(
-                    (a) => DropdownMenuItem(value: a.id, child: Text(a.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    (a) => DropdownMenuItem(
+                      value: a.id,
+                      child: Text(
+                        a.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   )
                   .toList(),
               validator: (v) => v == null
@@ -251,7 +258,7 @@ class _TransactionFormState extends State<TransactionForm> {
             if (paired) const SizedBox(height: 16),
             if (paired)
               DropdownButtonFormField<String>(
-              isExpanded: true,
+                isExpanded: true,
                 key: ValueKey('destination-$_kind-$_source'),
                 initialValue: _destination,
                 decoration: InputDecoration(
@@ -261,7 +268,14 @@ class _TransactionFormState extends State<TransactionForm> {
                 ),
                 items: destinations
                     .map(
-                      (a) => DropdownMenuItem(value: a.id, child: Text(a.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                      (a) => DropdownMenuItem(
+                        value: a.id,
+                        child: Text(
+                          a.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     )
                     .toList(),
                 validator: (v) => v == null ? 'Choose a destination.' : null,

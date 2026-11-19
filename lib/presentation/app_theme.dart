@@ -9,7 +9,7 @@ abstract final class SpendWiseTheme {
     final background = Color(dark ? 0xff111214 : 0xfff7f7f5);
     final surface = Color(dark ? 0xff1d1e22 : 0xffffffff);
     final ink = Color(dark ? 0xfff2f2f4 : 0xff202124);
-    final muted = Color(dark ? 0xffa8a9b1 : 0xff73757e);
+    final muted = Color(dark ? 0xffa8a9b1 : 0xff696c75);
     final line = Color(dark ? 0xff33343b : 0xffe8e9ed);
     final scheme = ColorScheme.fromSeed(seedColor: ink, brightness: brightness)
         .copyWith(

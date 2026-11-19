@@ -45,15 +45,14 @@ class _FinanceHomeState extends State<FinanceHome> {
             constraints: const BoxConstraints(maxWidth: 592),
             child: Row(
               children: [
-                const Text(
-                  'spendwise',
+                const Expanded(child: Text(
+                  'spendwise', maxLines: 1, overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.8,
                   ),
-                ),
-                const Spacer(),
+                )),
                 IconButton(
                   tooltip: 'Refresh',
                   onPressed: model.busy ? null : model.refresh,
@@ -74,8 +73,13 @@ class _FinanceHomeState extends State<FinanceHome> {
           children: [
             Row(
               children: [
-                Semantics(header: true, child: Text('Overview', style: Theme.of(context).textTheme.titleLarge)),
-                const Spacer(),
+                Expanded(child: Semantics(
+                  header: true,
+                  child: Text(
+                    'Overview', maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                )),
                 Semantics(
                   container: true,
                   label: 'MYR · Stored on this device · Offline',
@@ -189,93 +193,97 @@ class _FinanceHomeState extends State<FinanceHome> {
               ),
             if (model.error != null) ErrorNotice(model.error!),
             const SizedBox(height: 28),
-            _PanelSwitch(showAccounts: showAccounts,
-              onChanged: (value) => setState(() => _showAccounts = value)),
+            _PanelSwitch(
+              showAccounts: showAccounts,
+              onChanged: (value) => setState(() => _showAccounts = value),
+            ),
             const SizedBox(height: 16),
             if (showAccounts) ...[
-            Row(
-              children: [
-                Text(
-                  'Your accounts',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: model.busy
-                      ? null
-                      : () {
-                          setState(() => _showAccounts = true);
-                          open(const AccountForm());
-                        },
-                  icon: const Icon(Icons.add_rounded, size: 17),
-                  label: const Text('Add account'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            if (data.accounts.isEmpty)
-              const _EmptyState(
-                icon: Icons.account_balance_wallet_outlined,
-                title: 'Your money starts here',
-                description: 'Add a bank account, cash wallet or credit card.',
-              )
-            else
-              Container(
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    for (var i = 0; i < data.accounts.length; i++) ...[
-                      if (i > 0)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 70, right: 18),
-                          child: Divider(),
-                        ),
-                      _AccountRow(
-                        account: data.accounts[i],
-                        onTap: model.busy
-                            ? null
-                            : () =>
-                                  open(AccountForm(account: data.accounts[i])),
-                      ),
-                    ],
-                  ],
-                ),
+              Row(
+                children: [
+                  Expanded(child: Text(
+                    'Your accounts', maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: model.busy
+                        ? null
+                        : () {
+                            setState(() => _showAccounts = true);
+                            open(const AccountForm());
+                          },
+                    icon: const Icon(Icons.add_rounded, size: 17),
+                    label: const Text('Add account'),
+                  ),
+                ],
               ),
+              const SizedBox(height: 4),
+              if (data.accounts.isEmpty)
+                const _EmptyState(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Your money starts here',
+                  description:
+                      'Add a bank account, cash wallet or credit card.',
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < data.accounts.length; i++) ...[
+                        if (i > 0)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 70, right: 18),
+                            child: Divider(),
+                          ),
+                        _AccountRow(
+                          account: data.accounts[i],
+                          onTap: model.busy
+                              ? null
+                              : () => open(
+                                  AccountForm(account: data.accounts[i]),
+                                ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
             ] else ...[
-            if (data.operations.isEmpty)
-              const _EmptyState(
-                icon: Icons.receipt_long_outlined,
-                title: 'No transactions yet',
-                description:
-                    'Your income, expenses and transfers will appear here.',
-              )
-            else ...[
-              for (var i = 0; i < data.operations.length; i++) ...[
-                if (i == 0 ||
-                    !_sameDay(
-                      data.operations[i - 1].recordedAt,
-                      data.operations[i].recordedAt,
-                    ))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10),
-                    child: Text(
-                      _dayLabel(data.operations[i].recordedAt),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurfaceVariant,
+              if (data.operations.isEmpty)
+                const _EmptyState(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'No transactions yet',
+                  description:
+                      'Your income, expenses and transfers will appear here.',
+                )
+              else ...[
+                for (var i = 0; i < data.operations.length; i++) ...[
+                  if (i == 0 ||
+                      !_sameDay(
+                        data.operations[i - 1].recordedAt,
+                        data.operations[i].recordedAt,
+                      ))
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 10),
+                      child: Text(
+                        _dayLabel(data.operations[i].recordedAt),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
                     ),
+                  _ActivityRow(
+                    operation: data.operations[i],
+                    accounts: data.accounts,
                   ),
-                _ActivityRow(
-                  operation: data.operations[i],
-                  accounts: data.accounts,
-                ),
+                ],
               ],
-            ],
             ],
           ],
         ),
@@ -659,17 +667,40 @@ class _PanelSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    Widget tab(String label, bool accounts) => Expanded(child: Semantics(
-      selected: showAccounts == accounts,
-      child: TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: showAccounts == accounts ? colors.surface : Colors.transparent,
-          foregroundColor: showAccounts == accounts ? colors.onSurface : colors.onSurfaceVariant,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-        onPressed: () => onChanged(accounts), child: Text(label))));
-    return Container(padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: colors.onSurface.withValues(alpha: 0.04), borderRadius: BorderRadius.circular(16)),
-      child: Row(children: [tab('Activity', false), const SizedBox(width: 4), tab('Accounts', true)]));
+    Widget tab(String label, bool accounts) => Expanded(
+      child: Semantics(
+        selected: showAccounts == accounts,
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: showAccounts == accounts
+                ? colors.primary
+                : Colors.transparent,
+            foregroundColor: showAccounts == accounts
+                ? colors.onPrimary
+                : colors.onSurfaceVariant,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: () => onChanged(accounts),
+          child: Text(label),
+        ),
+      ),
+    );
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: colors.onSurface.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          tab('Activity', false),
+          const SizedBox(width: 4),
+          tab('Accounts', true),
+        ],
+      ),
+    );
   }
 }

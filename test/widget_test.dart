@@ -43,7 +43,10 @@ void main() {
     );
     expect(find.text('Offline'), findsOneWidget);
     expect(find.text('Add account'), findsOneWidget);
-    expect(find.text('No transactions yet.'), findsOneWidget);
+    await Scrollable.ensureVisible(tester.element(find.text('Activity')), alignment: 0.35);
+    await tester.tap(find.text('Activity'));
+    await tester.pumpAndSettle();
+    expect(find.text('No transactions yet'), findsOneWidget);
   });
   testWidgets('account form validates input and displays repository errors', (
     tester,

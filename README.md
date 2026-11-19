@@ -104,7 +104,7 @@ and stronger storage protection are outside Phase 1.
 
 ## Verification
 
-GitHub Actions runs Dart formatting, static analysis, 16 unit/widget tests,
+GitHub Actions runs Dart formatting, static analysis, unit/widget tests,
 Android debug APK and iOS simulator builds, plus a release web build and browser
 checks. Run the same commands above locally. Browser checks use Chrome, WebKit
 and actual Safari via WebDriver on macOS. CI reports are available under the
@@ -178,7 +178,7 @@ path and the SQLite WASM/worker URLs.
 
 Demo URL: https://mohamadkhairulazhar.github.io/spendwise-ai/
 
-The Flutter workflow separately checks formatting, analysis, all 16 unit/widget
+The Flutter workflow separately checks formatting, analysis, all unit/widget
 tests and Android/iOS builds. Native apps retain platform SQLite storage and do
 not depend on any web assets or hosting service. See the PR's Actions checks for
 the results associated with each revision.
@@ -188,3 +188,18 @@ The Playwright WebKit **offline-emulation** case is explicitly skipped because
 Its online editing and IndexedDB reload checks still run. Offline operation is
 checked in Chrome and in actual Safari, where the test stops the HTTP server
 before reloading instead of using emulated network flags.
+
+## Interface
+
+The interface follows the device's light or dark appearance automatically.
+Activity shows a compact, date-grouped transaction list; Accounts shows bank,
+cash and card balances and account setup. First-time users start on Accounts.
+The overview totals remain all-time figures. Tapping a transaction reveals its
+ledger reference and postings. Transaction entry puts the MYR amount first and
+uses the native keyboard. This is a presentation refresh of Phase 1; no budgets,
+categories or other Phase 2 features are added.
+
+Presentation code is split into `app_theme.dart`, `app_chrome.dart`,
+`overview_screen.dart` and `forms.dart`. Responsive widget checks cover narrow
+screens, larger text and live system-theme changes. Browser checks capture light
+and dark mobile previews as the `interface-screenshots` Actions artifact.

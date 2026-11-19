@@ -58,7 +58,7 @@ void main() {
           brightness,
         );
         expect(tester.takeException(), isNull);
-        await tester.ensureVisible(find.text('Accounts'));
+        await Scrollable.ensureVisible(tester.element(find.text('Accounts')), alignment: 0.35);
         await tester.tap(find.text('Accounts'));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
