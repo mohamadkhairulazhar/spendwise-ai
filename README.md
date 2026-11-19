@@ -37,7 +37,8 @@ Development APKs use debug signing; configure release signing before distributio
 
 1. Add accounts with names and opening balances. Choose bank, cash wallet or
    credit card. For cards, enter the **debt owed**, not a credit limit.
-2 oil card for a card purchase, or source and destination accounts for transfers
+2. Tap Transaction to record income or spending. Choose a bank/cash account for
+   cash movement, a credit card for a card purchase, or source and destination accounts for transfers
    and repayments. Amounts are MYR with at most two decimal places.
 3. Tap an account to rename it. Open audit history entries to see the operation
    reference, timestamp, note and each persisted balance movement.

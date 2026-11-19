@@ -45,14 +45,18 @@ class _FinanceHomeState extends State<FinanceHome> {
             constraints: const BoxConstraints(maxWidth: 592),
             child: Row(
               children: [
-                const Expanded(child: Text(
-                  'spendwise', maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.8,
+                const Expanded(
+                  child: Text(
+                    'spendwise',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.8,
+                    ),
                   ),
-                )),
+                ),
                 IconButton(
                   tooltip: 'Refresh',
                   onPressed: model.busy ? null : model.refresh,
@@ -73,13 +77,17 @@ class _FinanceHomeState extends State<FinanceHome> {
           children: [
             Row(
               children: [
-                Expanded(child: Semantics(
-                  header: true,
-                  child: Text(
-                    'Overview', maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge,
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      'Overview',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
                   ),
-                )),
+                ),
                 Semantics(
                   container: true,
                   label: 'MYR · Stored on this device · Offline',
