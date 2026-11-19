@@ -201,11 +201,14 @@ class _FinanceHomeState extends State<FinanceHome> {
             if (showAccounts) ...[
               Row(
                 children: [
-                  Expanded(child: Text(
-                    'Your accounts', maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Expanded(
+                    child: Text(
+                      'Your accounts',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
-                  const Spacer(),
                   TextButton.icon(
                     onPressed: model.busy
                         ? null
