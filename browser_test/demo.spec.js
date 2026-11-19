@@ -14,6 +14,7 @@ test('synthetic ledger, editing and IndexedDB persistence', async ({page}) => {
   await enableAccessibility(page);
   await expect(page.getByText('SYNTHETIC DEMO', {exact: false})).toBeVisible();
   await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
   await expect(page.getByRole('button', {name: /^Synthetic Credit Card /})).toBeVisible();
   // Renaming exercises a browser SQLite write, rather than relying only on seed.
   await page.getByRole('button', {name: /^Synthetic Wallet /}).click();
@@ -29,6 +30,7 @@ test('synthetic ledger, editing and IndexedDB persistence', async ({page}) => {
   await expect(page.getByRole('button', {name: /^Synthetic Demo Pocket /})).toBeVisible();
   await page.reload();
   await enableAccessibility(page);
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
   await expect(page.getByRole('button', {name: /^Synthetic Demo Pocket /})).toBeVisible();
   await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
   expect(errors).toEqual([]);
@@ -49,6 +51,7 @@ test('offline reload uses the cached app and browser database', async ({page, co
   await context.setOffline(true);
   await page.reload();
   await enableAccessibility(page);
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
   await expect(page.getByRole('button', {name: /^Synthetic Wallet /})).toBeVisible();
   await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
 });

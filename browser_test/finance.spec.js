@@ -8,6 +8,7 @@ async function openLedger(page) {
   await page.goto('./');
   await page.locator('flt-semantics-placeholder').evaluate(element => element.click());
   await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
 }
 
 async function typeText(page, label, value) {
@@ -36,6 +37,7 @@ async function summary(page, {net, income, expenses}) {
 }
 
 async function balance(page, name, type, amount) {
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
   await expect(page.getByRole('button', {
     name: `${name} ${type} RM ${amount}`, exact: true,
   })).toBeVisible();
@@ -123,6 +125,7 @@ test('transaction forms preserve ledger rules, failed writes, audit legs and exa
   await balance(page, 'Synthetic Credit Card', 'Credit card · Amount owed', '74.99');
   await summary(page, {net: '5557.64', income: '2600.01', expenses: '142.37'});
 
+  await page.getByRole('button', {name: 'Activity', exact: true}).click();
   const audit = page.getByRole('button', {name: /Synthetic integration repayment/});
   await expect(audit).toHaveCount(1);
   await audit.click();
@@ -136,6 +139,7 @@ test('transaction forms preserve ledger rules, failed writes, audit legs and exa
   await balance(page, 'Synthetic Wallet', 'Cash wallet', '362.68');
   await balance(page, 'Synthetic Credit Card', 'Credit card · Amount owed', '74.99');
   await summary(page, {net: '5557.64', income: '2600.01', expenses: '142.37'});
+  await page.getByRole('button', {name: 'Activity', exact: true}).click();
   await expect(page.getByRole('button', {name: /Synthetic integration repayment/})).toHaveCount(1);
   expect(errors).toEqual([]);
 });

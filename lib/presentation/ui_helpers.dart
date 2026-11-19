@@ -15,4 +15,3 @@ String operationLabel(OperationKind kind) => switch (kind) {
   OperationKind.purchase => 'Card purchase',
   OperationKind.repayment => 'Card repayment',
 };
-

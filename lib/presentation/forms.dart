@@ -55,6 +55,7 @@ class _AccountFormState extends State<AccountForm> {
             const SizedBox(height: 12),
             if (widget.account == null) ...[
               DropdownButtonFormField<AccountType>(
+              isExpanded: true,
                 initialValue: _type,
                 decoration: const InputDecoration(labelText: 'Account type'),
                 items: AccountType.values
@@ -85,7 +86,9 @@ class _AccountFormState extends State<AccountForm> {
                 validator: (v) => validateAmount(v, allowZero: true),
               ),
               const SizedBox(height: 14),
-              const Text('Opening balances are recorded once. For cards, enter the amount you owe, not your credit limit.'),
+              const Text(
+                'Opening balances are recorded once. For cards, enter the amount you owe, not your credit limit.',
+              ),
             ],
             if (model.error != null) ErrorNotice(model.error!),
             const SizedBox(height: 24),
@@ -180,7 +183,11 @@ class _TransactionFormState extends State<TransactionForm> {
             TextFormField(
               controller: _amount,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 44, fontWeight: FontWeight.w600, letterSpacing: -1.5),
+              style: const TextStyle(
+                fontSize: 44,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -1.5,
+              ),
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
@@ -198,6 +205,7 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<OperationKind>(
+              isExpanded: true,
               initialValue: _kind,
               decoration: const InputDecoration(labelText: 'Transaction type'),
               items: OperationKind.values
@@ -219,6 +227,7 @@ class _TransactionFormState extends State<TransactionForm> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               key: ValueKey('source-$_kind'),
               initialValue: _source,
               decoration: InputDecoration(
@@ -226,7 +235,7 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
               items: sources
                   .map(
-                    (a) => DropdownMenuItem(value: a.id, child: Text(a.name)),
+                    (a) => DropdownMenuItem(value: a.id, child: Text(a.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
                   )
                   .toList(),
               validator: (v) => v == null
@@ -240,7 +249,9 @@ class _TransactionFormState extends State<TransactionForm> {
                     }),
             ),
             if (paired) const SizedBox(height: 16),
-            if (paired) DropdownButtonFormField<String>(
+            if (paired)
+              DropdownButtonFormField<String>(
+              isExpanded: true,
                 key: ValueKey('destination-$_kind-$_source'),
                 initialValue: _destination,
                 decoration: InputDecoration(
@@ -250,7 +261,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 ),
                 items: destinations
                     .map(
-                      (a) => DropdownMenuItem(value: a.id, child: Text(a.name)),
+                      (a) => DropdownMenuItem(value: a.id, child: Text(a.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
                     )
                     .toList(),
                 validator: (v) => v == null ? 'Choose a destination.' : null,
@@ -303,4 +314,3 @@ class _TransactionFormState extends State<TransactionForm> {
     );
   }
 }
-
