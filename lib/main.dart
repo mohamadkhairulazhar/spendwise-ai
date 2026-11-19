@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'data/sqlite_finance_repository.dart';
 import 'presentation/finance_controller.dart';
+import 'presentation/app_theme.dart';
 import 'presentation/screens.dart';
 
 Future<void> main() async {
@@ -16,10 +17,9 @@ class SpendWiseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'SpendWise AI',
-    theme: ThemeData(
-      colorSchemeSeed: const Color(0xff00695c),
-      useMaterial3: true,
-    ),
+    theme: SpendWiseTheme.light,
+    darkTheme: SpendWiseTheme.dark,
+    themeMode: ThemeMode.system,
     home: const _Startup(),
   );
 }

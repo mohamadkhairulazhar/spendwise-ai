@@ -21,6 +21,7 @@ try:
     else:
         raise RuntimeError('Synthetic demo server did not start')
     browser = webdriver.Safari()
+    browser.set_window_size(1280, 1100)
     wait = WebDriverWait(browser, 60)
 
     def check_ledger():

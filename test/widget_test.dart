@@ -41,9 +41,9 @@ void main() {
         child: const MaterialApp(home: FinanceHome()),
       ),
     );
-    expect(find.text('MYR · Stored on this device · Offline'), findsOneWidget);
+    expect(find.text('Offline'), findsOneWidget);
     expect(find.text('Add account'), findsOneWidget);
-    expect(find.text('No operations yet.'), findsOneWidget);
+    expect(find.text('No transactions yet.'), findsOneWidget);
   });
   testWidgets('account form validates input and displays repository errors', (
     tester,
@@ -55,6 +55,7 @@ void main() {
         child: const MaterialApp(home: AccountForm()),
       ),
     );
+    await tester.ensureVisible(find.text('Save account'));
     await tester.tap(find.text('Save account'));
     await tester.pump();
     expect(find.text('Enter a name.'), findsOneWidget);
@@ -63,10 +64,12 @@ void main() {
       'Synthetic Wallet',
     );
     await tester.enterText(find.byType(TextFormField).last, '1.005');
+    await tester.ensureVisible(find.text('Save account'));
     await tester.tap(find.text('Save account'));
     await tester.pump();
     expect(repository.savedName, isNull);
     await tester.enterText(find.byType(TextFormField).last, '10.01');
+    await tester.ensureVisible(find.text('Save account'));
     await tester.tap(find.text('Save account'));
     await tester.pumpAndSettle();
     expect(find.text('Synthetic storage failure'), findsOneWidget);
