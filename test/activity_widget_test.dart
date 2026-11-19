@@ -72,6 +72,7 @@ void main() {
       expect(find.text('January 2026'), findsOneWidget);
       expect(find.text('December 2025'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'payment');
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.pumpAndSettle();
       expect(find.text('1 entry'), findsOneWidget);
       expect(find.text('Synthetic wallet top-up'), findsNothing);
@@ -80,6 +81,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('2025'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'no synthetic match');
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.pumpAndSettle();
       expect(find.text('0 entries'), findsOneWidget);
       expect(find.textContaining('No matching activity.'), findsOneWidget);
@@ -129,9 +131,11 @@ void main() {
       expect(find.text('Account: bank'), findsOneWidget);
       expect(find.text('Account: wallet'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'payment');
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.pumpAndSettle();
       expect(find.text('0 entries'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'top-up');
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.pumpAndSettle();
       expect(find.text('1 entry'), findsOneWidget);
       await tester.tap(find.byTooltip('Rename account'));
@@ -167,4 +171,21 @@ void main() {
       controller.dispose();
     },
   );
+  testWidgets('search applies the latest query and cancels pending work on disposal', (tester) async {
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: SingleChildScrollView(
+      child: ActivitySection(operations: operations, accounts: accounts)))));
+    await tester.enterText(find.byType(TextField), 'payment');
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(find.byType(TextField), 'groceries');
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    expect(find.text('1 entry'), findsOneWidget);
+    expect(find.text('Synthetic groceries'), findsOneWidget);
+    expect(find.text('Synthetic card payment'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'wallet');
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.takeException(), isNull);
+  });
+
 }

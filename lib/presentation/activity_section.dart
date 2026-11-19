@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../domain/ledger.dart';
@@ -22,10 +24,28 @@ class ActivitySection extends StatefulWidget {
 
 class _ActivitySectionState extends State<ActivitySection> {
   final _search = TextEditingController();
+  final _searchFocus = FocusNode();
+  Timer? _searchDebounce;
+  String _query = '';
   ActivityGrouping _grouping = ActivityGrouping.day;
+
+  void _updateSearch(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      setState(() => _query = value);
+    });
+  }
+
+  void _clearSearch() {
+    _searchDebounce?.cancel();
+    _search.clear();
+    setState(() => _query = '');
+  }
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchFocus.dispose();
     _search.dispose();
     super.dispose();
   }
@@ -36,30 +56,37 @@ class _ActivitySectionState extends State<ActivitySection> {
     final matches = filterActivity(
       widget.operations,
       widget.accounts,
-      _search.text,
+      _query,
       accountId: widget.accountId,
     );
     final groups = groupActivity(matches, _grouping);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: _search,
-          textInputAction: TextInputAction.search,
-          onChanged: (_) => setState(() {}),
-          decoration: InputDecoration(
-            labelText: 'Search activity',
-            helperText: 'Notes, accounts, type, amount, date or reference',
-            helperMaxLines: 2,
-            helperStyle: const TextStyle(fontSize: 11),
-            prefixIcon: const Icon(Icons.search_rounded, size: 20),
-            suffixIcon: _search.text.isEmpty
-                ? null
-                : IconButton(
-                    tooltip: 'Clear search',
-                    icon: const Icon(Icons.close_rounded, size: 18),
-                    onPressed: () => setState(_search.clear),
-                  ),
+        Semantics(
+          container: true,
+          explicitChildNodes: true,
+          child:
+          TextField(
+            key: const ValueKey('activity-search'),
+            controller: _search,
+            focusNode: _searchFocus,
+            textInputAction: TextInputAction.search,
+            onChanged: _updateSearch,
+            decoration: InputDecoration(
+              labelText: 'Search activity',
+              helperText: 'Notes, accounts, type, amount, date or reference',
+              helperMaxLines: 2,
+              helperStyle: const TextStyle(fontSize: 11),
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
+              suffixIcon: _search.text.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear search',
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      onPressed: _clearSearch,
+                    ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -109,7 +136,7 @@ class _ActivitySectionState extends State<ActivitySection> {
             child: Semantics(
               container: true,
               child: Text(
-                _search.text.trim().isEmpty
+                _query.trim().isEmpty
                     ? 'No transactions yet'
                     : 'No matching activity. Try another search or clear the field.',
                 style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
