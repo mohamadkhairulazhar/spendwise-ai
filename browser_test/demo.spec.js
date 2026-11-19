@@ -18,7 +18,7 @@ test('synthetic ledger, editing and IndexedDB persistence', async ({page}) => {
   await expect(page.getByRole('button', {name: /^Synthetic Credit Card /})).toBeVisible();
   // Renaming exercises a browser SQLite write, rather than relying only on seed.
   await page.getByRole('button', {name: /^Synthetic Wallet /}).click();
-  await expect(page.getByText('Account history', {exact: true})).toBeVisible();
+  await expect(page.getByRole('heading', {name: 'Account history', exact: true})).toBeVisible();
   await page.getByRole('button', {name: 'Rename account', exact: true}).click();
   const nameField = page.getByRole('textbox', {name: /Account name/});
   // Flutter replaces the semantics input on focus in WebKit. Use actual key

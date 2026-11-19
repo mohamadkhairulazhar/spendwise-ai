@@ -23,9 +23,9 @@ test('search and calendar grouping preserve the ledger and open scoped account h
     month: new Date().toLocaleString('en-GB', {month: 'long'}),
     year: String(new Date().getFullYear()),
   }));
-  await expect(page.getByText(`${month} ${year}`, {exact: true})).toBeVisible();
+  await expect(page.getByRole('heading', {name: `${month} ${year}`, exact: true})).toBeVisible();
   await page.getByRole('button', {name: 'Year', exact: true}).click();
-  await expect(page.getByText(year, {exact: true})).toBeVisible();
+  await expect(page.getByRole('heading', {name: year, exact: true})).toBeVisible();
   await search(page, 'GROCERIES rm85.00');
   await expect(page.getByText('1 entry', {exact: true})).toBeVisible();
   await expect(page.getByRole('button', {name: /Synthetic groceries/})).toBeVisible();
@@ -44,11 +44,11 @@ test('search and calendar grouping preserve the ledger and open scoped account h
 
   await page.getByRole('button', {name: 'Accounts', exact: true}).click();
   await page.getByRole('button', {name: /^Synthetic Wallet /}).click();
-  await expect(page.getByText('Account history', {exact: true})).toBeVisible();
+  await expect(page.getByRole('heading', {name: 'Account history', exact: true})).toBeVisible();
   await expect(page.getByText('Account balance RM 325.00', {exact: false})).toBeVisible();
   await expect(page.getByText('3 entries', {exact: true})).toBeVisible();
   await expect(page.getByRole('button', {name: /Synthetic wallet top-up/})).toBeVisible();
-  await expect(page.getByText('+RM 150.00', {exact: true})).toBeVisible();
+  await expect(page.getByRole('button', {name: /Synthetic wallet top-up.*\+RM 150\.00/})).toBeVisible();
   await expect(page.getByRole('button', {name: /Synthetic groceries/})).toHaveCount(0);
   await search(page, 'repayment');
   await expect(page.getByText('0 entries', {exact: true})).toBeVisible();
@@ -57,8 +57,8 @@ test('search and calendar grouping preserve the ledger and open scoped account h
   await page.getByRole('button', {name: /^Synthetic Credit Card /}).click();
   await expect(page.getByText('Amount owed RM 85.00', {exact: false})).toBeVisible();
   await expect(page.getByText('3 entries', {exact: true})).toBeVisible();
-  await expect(page.getByText('+RM 85.00', {exact: true})).toBeVisible();
-  await expect(page.getByText('−RM 100.00', {exact: true})).toBeVisible();
+  await expect(page.getByRole('button', {name: /Synthetic groceries.*\+RM 85\.00/})).toBeVisible();
+  await expect(page.getByRole('button', {name: /Synthetic card repayment.*−RM 100\.00/})).toBeVisible();
   await search(page, 'bank repayment');
   await expect(page.getByText('1 entry', {exact: true})).toBeVisible();
   await page.getByRole('button', {name: /Synthetic card repayment/}).click();

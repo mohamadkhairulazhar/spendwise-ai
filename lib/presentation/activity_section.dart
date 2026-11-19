@@ -96,6 +96,7 @@ class _ActivitySectionState extends State<ActivitySection> {
         ),
         const SizedBox(height: 12),
         Semantics(
+          container: true,
           liveRegion: true,
           child: Text(
             '${matches.length} ${matches.length == 1 ? 'entry' : 'entries'}',
@@ -105,11 +106,14 @@ class _ActivitySectionState extends State<ActivitySection> {
         if (matches.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Text(
-              _search.text.trim().isEmpty
-                  ? 'No transactions yet'
-                  : 'No matching activity. Try another search or clear the field.',
-              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
+            child: Semantics(
+              container: true,
+              child: Text(
+                _search.text.trim().isEmpty
+                    ? 'No transactions yet'
+                    : 'No matching activity. Try another search or clear the field.',
+                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
+              ),
             ),
           ),
         for (final group in groups) ...[
@@ -260,6 +264,7 @@ class _ActivityRow extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Semantics(
+            container: true,
             label: 'Reference: ${command.id}',
             excludeSemantics: true,
             child: SelectableText(

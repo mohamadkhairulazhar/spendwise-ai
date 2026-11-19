@@ -55,6 +55,7 @@ class AccountHistoryScreen extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Semantics(
+              container: true,
               label:
                   '${account.isLiability ? 'Amount owed' : 'Account balance'} ${myr(account.balanceSen)}',
               excludeSemantics: true,
@@ -85,9 +86,13 @@ class AccountHistoryScreen extends StatelessWidget {
             if (model.busy) const LinearProgressIndicator(minHeight: 2),
             if (model.error != null) ErrorNotice(model.error!),
             const SizedBox(height: 28),
-            Text(
-              'Account history',
-              style: Theme.of(context).textTheme.titleMedium,
+            Semantics(
+              container: true,
+              header: true,
+              child: Text(
+                'Account history',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
             const SizedBox(height: 16),
             ActivitySection(
