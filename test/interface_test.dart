@@ -65,6 +65,14 @@ void main() {
         await tester.tap(find.text('Accounts'));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
+        await tester.ensureVisible(find.text('A long synthetic bank account name'));
+        await tester.tap(find.text('A long synthetic bank account name'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AccountHistoryScreen), findsOneWidget);
+        expect(find.text('Search activity'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Transaction'));
         await tester.pumpAndSettle();
         expect(find.text('New transaction'), findsOneWidget);

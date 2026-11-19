@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../domain/ledger.dart';
 import 'app_chrome.dart';
+import 'activity_section.dart';
+import 'account_history_screen.dart';
 import 'finance_controller.dart';
 import 'forms.dart';
 import 'ui_helpers.dart';
@@ -256,46 +258,18 @@ class _FinanceHomeState extends State<FinanceHome> {
                           onTap: model.busy
                               ? null
                               : () => open(
-                                  AccountForm(account: data.accounts[i]),
+                                  AccountHistoryScreen(accountId: data.accounts[i].id),
                                 ),
                         ),
                       ],
                     ],
                   ),
                 ),
-            ] else ...[
-              if (data.operations.isEmpty)
-                const _EmptyState(
-                  icon: Icons.receipt_long_outlined,
-                  title: 'No transactions yet',
-                  description:
-                      'Your income, expenses and transfers will appear here.',
-                )
-              else ...[
-                for (var i = 0; i < data.operations.length; i++) ...[
-                  if (i == 0 ||
-                      !_sameDay(
-                        data.operations[i - 1].recordedAt,
-                        data.operations[i].recordedAt,
-                      ))
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
-                      child: Text(
-                        _dayLabel(data.operations[i].recordedAt),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  _ActivityRow(
-                    operation: data.operations[i],
-                    accounts: data.accounts,
-                  ),
-                ],
-              ],
-            ],
+            ] else
+              ActivitySection(
+                operations: data.operations,
+                accounts: data.accounts,
+              ),
           ],
         ),
       ),
@@ -466,145 +440,6 @@ class _AccountRow extends StatelessWidget {
   }
 }
 
-class _ActivityRow extends StatelessWidget {
-  const _ActivityRow({required this.operation, required this.accounts});
-  final AuditOperation operation;
-  final List<Account> accounts;
-  @override
-  Widget build(BuildContext context) {
-    final command = operation.command;
-    final colors = Theme.of(context).colorScheme;
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final income = command.kind == OperationKind.income;
-    final spending =
-        command.kind == OperationKind.expense ||
-        command.kind == OperationKind.purchase;
-    final tone = income
-        ? Color(dark ? 0xffa3d3b4 : 0xff4c7560)
-        : colors.onSurface;
-    final accountName = accounts
-        .firstWhere((a) => a.id == command.accountId)
-        .name;
-    final otherName = command.otherAccountId == null
-        ? null
-        : accounts.firstWhere((a) => a.id == command.otherAccountId).name;
-    final local = operation.recordedAt.toLocal();
-    final time =
-        '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}';
-    return Theme(
-      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: const EdgeInsets.fromLTRB(8, 4, 8, 16),
-        expandedCrossAxisAlignment: CrossAxisAlignment.start,
-        leading: Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: colors.onSurface.withValues(alpha: 0.045),
-            borderRadius: BorderRadius.circular(13),
-          ),
-          child: Icon(
-            switch (command.kind) {
-              OperationKind.income => Icons.south_west_rounded,
-              OperationKind.expense => Icons.north_east_rounded,
-              OperationKind.purchase => Icons.shopping_bag_outlined,
-              OperationKind.transfer => Icons.swap_horiz_rounded,
-              OperationKind.repayment => Icons.credit_score_outlined,
-              OperationKind.opening => Icons.account_balance_wallet_outlined,
-            },
-            size: 18,
-            color: tone,
-          ),
-        ),
-        title: Text(
-          command.note.isEmpty ? operationLabel(command.kind) : command.note,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-        ),
-        subtitle: Text(
-          '${operationLabel(command.kind)} · $accountName${otherName == null ? '' : ' → $otherName'}',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
-        ),
-        trailing: SizedBox(
-          width: MediaQuery.sizeOf(context).width < 380 ? 100 : 130,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  '${income
-                      ? '+'
-                      : spending
-                      ? '−'
-                      : ''}${myr(command.amountSen)}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tone,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                time,
-                style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ),
-        children: [
-          const Divider(),
-          const SizedBox(height: 12),
-          Text(
-            'Ledger details',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Semantics(
-            label: 'Reference: ${command.id}',
-            excludeSemantics: true,
-            child: SelectableText(
-              'Reference: ${command.id}',
-              style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
-            ),
-          ),
-          for (final posting in operation.postings)
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                accounts.firstWhere((a) => a.id == posting.accountId).name,
-                style: const TextStyle(fontSize: 12),
-              ),
-              subtitle: Text(
-                'Account: ${posting.accountId}',
-                style: const TextStyle(fontSize: 10),
-              ),
-              trailing: Text(
-                '${posting.deltaSen >= 0 ? '+' : ''}${myr(posting.deltaSen)}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontFeatures: [FontFeature.tabularFigures()],
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.icon,
@@ -641,34 +476,6 @@ class _EmptyState extends StatelessWidget {
       ],
     ),
   );
-}
-
-bool _sameDay(DateTime a, DateTime b) {
-  final x = a.toLocal();
-  final y = b.toLocal();
-  return x.year == y.year && x.month == y.month && x.day == y.day;
-}
-
-String _dayLabel(DateTime value) {
-  final date = value.toLocal();
-  final now = DateTime.now();
-  if (_sameDay(date, now)) return 'Today';
-  if (_sameDay(date, now.subtract(const Duration(days: 1)))) return 'Yesterday';
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-  return '${date.day} ${months[date.month - 1]} ${date.year}';
 }
 
 class _PanelSwitch extends StatelessWidget {

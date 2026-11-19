@@ -40,8 +40,15 @@ Development APKs use debug signing; configure release signing before distributio
 2. Tap Transaction to record income or spending. Choose a bank/cash account for
    cash movement, a credit card for a card purchase, or source and destination accounts for transfers
    and repayments. Amounts are MYR with at most two decimal places.
-3. Tap an account to rename it. Open audit history entries to see the operation
-   reference, timestamp, note and each persisted balance movement.
+3. Open Activity and search notes, account names, operation types, MYR amounts,
+   local dates (for example `2026-11-19`) or ledger references. Search ignores case
+   and combines words. Use Day, Month or Year to group the matching audit entries.
+4. Tap an account to open its history, including opening balances and both sides
+   of transfers and card repayments. Amount signs show that account's movement;
+   for cards, positive amounts increase debt and negative amounts reduce it.
+   Rename the account with the edit button on its history screen.
+5. Expand an activity entry to see its full note, local recorded timestamp,
+   immutable reference and each persisted balance movement.
 
 Example: a synthetic bank starts at RM1,000 and a card at RM0. A RM50 card
 purchase creates RM50 debt and RM50 expenses, with bank cash still RM1,000.
@@ -193,7 +200,7 @@ before reloading instead of using emulated network flags.
 ## Interface
 
 The interface follows the device's light or dark appearance automatically.
-Activity shows a compact, date-grouped transaction list; Accounts shows bank,
+Activity has searchable audit entries grouped by day, month or year; Accounts shows bank,
 cash and card balances and account setup. First-time users start on Accounts.
 The overview totals remain all-time figures. Tapping a transaction reveals its
 ledger reference and postings. Transaction entry puts the MYR amount first and
@@ -204,3 +211,10 @@ Presentation code is split into `app_theme.dart`, `app_chrome.dart`,
 `overview_screen.dart` and `forms.dart`. Responsive widget checks cover narrow
 screens, larger text and live system-theme changes. Browser checks capture light
 and dark mobile previews as the `interface-screenshots` Actions artifact.
+
+Search and grouping are read-only views of the persisted audit ledger. Calendar
+boundaries and displayed timestamps follow the device time zone; entries keep
+ledger sequence order within each group. Groups appear newest first. Search and
+account filters do not change the all-time overview totals or stored balances.
+The account history uses persisted postings to include incoming transfers and
+repayments as well as outgoing operations.
