@@ -267,9 +267,11 @@ class _ActivityRow extends StatelessWidget {
             container: true,
             label: 'Reference: ${command.id}',
             excludeSemantics: true,
-            child: SelectableText(
-              'Reference: ${command.id}',
-              style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
+            child: SelectionArea(
+              child: Text(
+                'Reference: ${command.id}',
+                style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
+              ),
             ),
           ),
           const SizedBox(height: 8),

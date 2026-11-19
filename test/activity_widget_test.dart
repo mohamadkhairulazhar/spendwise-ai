@@ -128,6 +128,12 @@ void main() {
       expect(find.text('Reference: transfer-reference'), findsOneWidget);
       expect(find.text('Account: bank'), findsOneWidget);
       expect(find.text('Account: wallet'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'payment');
+      await tester.pumpAndSettle();
+      expect(find.text('0 entries'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'top-up');
+      await tester.pumpAndSettle();
+      expect(find.text('1 entry'), findsOneWidget);
       await tester.tap(find.byTooltip('Rename account'));
       await tester.pumpAndSettle();
       expect(find.text('Rename account'), findsOneWidget);
