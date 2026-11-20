@@ -196,6 +196,7 @@ class CaptureStoreTest {
                 "synthetic-tag",
                 Process.myUid(),
                 0,
+                0,
                 notification,
                 Process.myUserHandle(),
                 now,

@@ -196,8 +196,11 @@ app versions, date and tester. Keep notification content and credentials on the
 owned test device. Do not commit real financial content or manufacture notification
 formats. Do not make a financial payment just to test the listener.
 
-1. Install the CI debug APK (or `flutter run`). Confirm existing ledger balances and
-   histories survive an in-place update; use a synthetic ledger for testing.
+1. Install the CI debug APK (or `flutter run`) on a disposable synthetic test profile.
+   In-place upgrades require the same signing key as the installed app. CI debug keys
+   can differ between runners; never uninstall a device's existing financial data
+   just to install this test APK. Use the original local signing key to verify that
+   existing synthetic ledger balances/histories survive an in-place upgrade.
 2. Open **Settings → Automatic Tracking**. Confirm capture is off, no app selected,
    and permission status reflects Android settings. Open Notification Access and
    explicitly grant it. Return and confirm current status updates.

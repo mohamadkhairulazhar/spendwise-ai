@@ -17,10 +17,13 @@ class CaptureController extends ChangeNotifier {
 
   void start() {
     if (!client.supported) return;
-    _subscription = client.changes.listen((_) => refresh(), onError: (_) {
-      error = 'Live updates unavailable. Refresh to read retained captures.';
-      _notify();
-    });
+    _subscription = client.changes.listen(
+      (_) => refresh(),
+      onError: (_) {
+        error = 'Live updates unavailable. Refresh to read retained captures.';
+        _notify();
+      },
+    );
     setForeground(true);
     refresh();
   }
@@ -28,12 +31,16 @@ class CaptureController extends ChangeNotifier {
   void setForeground(bool foreground) {
     _poll?.cancel();
     _poll = foreground && client.supported && !_disposed
-      ? Timer.periodic(const Duration(seconds: 5), (_) => refresh()) : null;
+        ? Timer.periodic(const Duration(seconds: 5), (_) => refresh())
+        : null;
   }
 
   Future<void> refresh() async {
     if (_disposed || !client.supported) return;
-    if (busy) { _refreshAgain = true; return; }
+    if (busy) {
+      _refreshAgain = true;
+      return;
+    }
     busy = true;
     _notify();
     do {
@@ -61,10 +68,18 @@ class CaptureController extends ChangeNotifier {
     error = null;
     _notify();
     var ok = false;
-    try { await action(); ok = true; }
-    catch (_) { error = 'Could not update capture settings. Retry.'; }
+    try {
+      await action();
+      ok = true;
+    } catch (_) {
+      error = 'Could not update capture settings. Retry.';
+    }
     busy = false;
-    if (ok) { await refresh(); } else { _notify(); }
+    if (ok) {
+      await refresh();
+    } else {
+      _notify();
+    }
     return ok;
   }
 
@@ -77,15 +92,24 @@ class CaptureController extends ChangeNotifier {
       if (_disposed) return;
       events = [...events, ...next];
       hasMore = next.length == 50;
-    } catch (_) { error = 'Could not load older captures. Retry.'; }
+    } catch (_) {
+      error = 'Could not load older captures. Retry.';
+    }
     busy = false;
     _notify();
   }
 
-  String sourceName(String packageName) => snapshot.sources
-    .where((s) => s.packageName == packageName).firstOrNull?.name ?? packageName;
+  String sourceName(String packageName) =>
+      snapshot.sources
+          .where((s) => s.packageName == packageName)
+          .firstOrNull
+          ?.name ??
+      packageName;
 
-  void _notify() { if (!_disposed) notifyListeners(); }
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
+
   @override
   void dispose() {
     _disposed = true;

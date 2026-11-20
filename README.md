@@ -1,4 +1,4 @@
-# SpendWise AI — Phase 1
+# SpendWise AI
 
 Offline-first personal finance for Malaysian users. Flutter/Dart, MYR only,
 SQLite on iOS and Android. No server, login, AI, sync or bank connection.
@@ -106,8 +106,8 @@ form keeps its UUID across retries and disables submission while saving.
 
 SQLite is the local source of truth. Once installed, all app functionality works
 without a network. No analytics or financial data leaves the app. Storage is
-app-private but is not additionally encrypted; OS backups are subject to device
-settings. Uninstalling the app can delete its database. Export/backup recovery
+app-private but the ledger is not additionally encrypted. Android platform backup
+and device transfer are disabled; iOS backups depend on device settings. Uninstalling the app can delete its database. Export/backup recovery
 and stronger storage protection are outside Phase 1.
 
 ## Verification
