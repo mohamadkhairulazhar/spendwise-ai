@@ -7,6 +7,7 @@ import 'activity_section.dart';
 import 'account_history_screen.dart';
 import 'finance_controller.dart';
 import 'forms.dart';
+import 'tracking/tracking_screens.dart';
 import 'ui_helpers.dart';
 
 class FinanceHome extends StatefulWidget {
@@ -58,6 +59,11 @@ class _FinanceHomeState extends State<FinanceHome> {
                       letterSpacing: -0.8,
                     ),
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Settings',
+                  onPressed: () => open(const SettingsScreen()),
+                  icon: const Icon(Icons.settings_outlined, size: 21),
                 ),
                 IconButton(
                   tooltip: 'Refresh',
