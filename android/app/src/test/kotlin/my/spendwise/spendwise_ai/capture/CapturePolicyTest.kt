@@ -18,6 +18,7 @@ class CapturePolicyTest {
                 "Kod pengesahan 1234",
                 "验证码 123456",
                 "123456",
+                "١٢٣٤٥٦",
                 "Login approved",
             )) {
             assertEquals(

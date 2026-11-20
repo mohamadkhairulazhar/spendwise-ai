@@ -140,10 +140,8 @@ class PlatformNotificationCaptureClient implements NotificationCaptureClient {
   Future<Map<String, Object?>?> content(String eventId) async => _methods
       .invokeMapMethod<String, Object?>('content', {'eventId': eventId});
   @override
-  Future<void> eraseContent({String? eventId}) => _methods.invokeMethod(
-    'eraseContent',
-    {'eventId': ?eventId},
-  );
+  Future<void> eraseContent({String? eventId}) =>
+      _methods.invokeMethod('eraseContent', {'eventId': ?eventId});
   @override
   Future<void> openAccessSettings() =>
       _methods.invokeMethod('openAccessSettings');

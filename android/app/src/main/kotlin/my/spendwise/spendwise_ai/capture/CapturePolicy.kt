@@ -37,11 +37,14 @@ object CapturePolicy {
         )
     // Conservative: unlabelled standalone codes are not retained either. Decimal
     // amounts are excluded from this check; this is privacy screening, not parsing.
-    private val possibleCode = Regex("(?<![\\p{L}\\p{N}.,])\\d{4,8}(?![\\p{L}\\p{N}.,])")
+    private val possibleCode = Regex("(?<![\\p{L}\\p{N}.,])\\p{Nd}{4,8}(?![\\p{L}\\p{N}.,])")
 
     fun ignoredReason(payload: CapturePayload): String? =
         when {
             payload.title.length > 256 || payload.body.length > 8192 -> "content_too_large"
+            payload.notificationKey.length > 1024 ||
+                (payload.tag?.length ?: 0) > 1024 ||
+                (payload.groupKey?.length ?: 0) > 1024 -> "identifiers_too_large"
             payload.groupSummary -> "group_summary"
             payload.title.isBlank() && payload.body.isBlank() -> "no_readable_content"
             credentials.containsMatchIn(payload.title + "\n" + payload.body) ||

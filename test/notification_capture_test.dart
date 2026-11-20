@@ -288,39 +288,63 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await client.signal.close();
   });
-  testWidgets('pending content reads cannot reveal data after background and resume', (tester) async {
-    final client = FakeCaptureClient()..delayedContent = Completer<Map<String, Object?>?>();
-    final event = (await client.history()).single;
-    await tester.pumpWidget(MaterialApp(home: CaptureDetailScreen(client: client, event: event, sourceName: 'Synthetic source')));
-    await tapVisible(tester, find.text('Show retained content'));
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    client.delayedContent!.complete(client.raw);
-    await tester.pumpAndSettle();
-    expect(find.text('Synthetic confidential fixture'), findsNothing);
-    expect(tester.takeException(), isNull);
-    await tester.pumpWidget(const SizedBox());
-    await client.signal.close();
-  });
+  testWidgets(
+    'pending content reads cannot reveal data after background and resume',
+    (tester) async {
+      final client = FakeCaptureClient()
+        ..delayedContent = Completer<Map<String, Object?>?>();
+      final event = (await client.history()).single;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CaptureDetailScreen(
+            client: client,
+            event: event,
+            sourceName: 'Synthetic source',
+          ),
+        ),
+      );
+      await tapVisible(tester, find.text('Show retained content'));
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      client.delayedContent!.complete(client.raw);
+      await tester.pumpAndSettle();
+      expect(find.text('Synthetic confidential fixture'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await client.signal.close();
+    },
+  );
 
-  testWidgets('tracking settings fit a narrow dark device with larger text', (tester) async {
+  testWidgets('tracking settings fit a narrow dark device with larger text', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     final client = FakeCaptureClient();
-    await tester.pumpWidget(MaterialApp(theme: SpendWiseTheme.dark,
-      builder: (context, child) => MediaQuery(data: MediaQuery.of(context)
-        .copyWith(textScaler: const TextScaler.linear(1.3)), child: child!),
-      home: AutomaticTrackingScreen(client: client)));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: SpendWiseTheme.dark,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1.3)),
+          child: child!,
+        ),
+        home: AutomaticTrackingScreen(client: client),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    await tester.scrollUntilVisible(find.text('Detection history'), 150,
-      scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      find.text('Detection history'),
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
     await client.signal.close();
   });
-
 }

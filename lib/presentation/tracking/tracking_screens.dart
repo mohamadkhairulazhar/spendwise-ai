@@ -426,8 +426,10 @@ class _CaptureDetailScreenState extends State<CaptureDetailScreen>
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _notice =
-            'Could not decrypt retained content. Retry; data was not reset.');
+        setState(
+          () => _notice =
+              'Could not decrypt retained content. Retry; data was not reset.',
+        );
       }
     }
     if (mounted) setState(() => _busy = false);
@@ -441,7 +443,8 @@ class _CaptureDetailScreenState extends State<CaptureDetailScreen>
         setState(() {
           _content = null;
           _contentState = 'deleted';
-          _notice = 'Retained content deleted. Capture metadata and ledger history remain.';
+          _notice =
+              'Retained content deleted. Capture metadata and ledger history remain.';
         });
       }
     } catch (_) {
