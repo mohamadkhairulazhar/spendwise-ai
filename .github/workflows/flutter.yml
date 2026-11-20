@@ -24,7 +24,7 @@ jobs:
           java-version: '17'
       - run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: dart format lib test
       - uses: actions/upload-artifact@v4
         with:
           name: formatted-source
@@ -34,7 +34,36 @@ jobs:
             pubspec.lock
       - run: flutter analyze
       - run: flutter test --coverage
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: python3 tool/check_kotlin_format.py
+      - run: flutter pub get
       - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spendwise-android-capture-debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+      - run: ./gradlew app:testDebugUnitTest --no-daemon
+        working-directory: android
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-native-test-results
+          path: |
+            build/app/test-results/
+            build/app/reports/tests/
   ios:
     runs-on: macos-latest
     steps:

@@ -218,3 +218,23 @@ ledger sequence order within each group. Groups appear newest first. Search and
 account filters do not change the all-time overview totals or stored balances.
 The account history uses persisted postings to include incoming transfers and
 repayments as well as outgoing operations.
+
+## Android notification capture — Phase 2 / PR #2
+
+Android now has **Settings → Automatic Tracking** for opt-in, selected-application
+notification capture. It starts disabled. Native Kotlin persists an encrypted,
+private notification inbox before signalling Flutter, so capture does not depend
+on the Flutter UI being open. Detection history shows captured/ignored metadata,
+retention state and fixed failure diagnostics. Raw content requires an explicit
+view action and can be deleted without touching the financial ledger.
+
+This milestone does **not** parse, map accounts or post transactions. No banking
+notification format or physical-device delivery has been validated. iOS and Web
+retain manual tracking and show capture as unavailable. Android backups/device
+transfer are disabled for privacy, including the existing ledger; uninstalling or
+clearing app data can remove all local data.
+
+See [Android capture architecture, limitations and physical-device verification](docs/android-notification-capture.md)
+for verified package listing sources, privacy screening, retention, automated
+commands, Xiaomi HyperOS guidance and the outstanding device test matrix.
+PR #3 must wait for review and merge of PR #2.

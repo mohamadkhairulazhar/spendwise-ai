@@ -30,6 +30,8 @@ android {
         versionName = flutter.versionName
     }
 
+    testOptions { unitTests.isIncludeAndroidResources = true }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -41,4 +43,15 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+}
+
+tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
+    maxHeapSize = "1g"
+    maxParallelForks = 1
+    testLogging { events("passed", "failed", "skipped") }
 }
