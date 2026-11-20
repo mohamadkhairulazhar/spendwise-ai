@@ -1,0 +1,94 @@
+name: Web demo and GitHub Pages
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  web:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - run: bash tool/build_web.sh
+      - name: Package UI preview
+        run: tar -czf /tmp/spendwise-ui-preview.tar.gz -C build/web .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-build-preview
+          path: /tmp/spendwise-ui-preview.tar.gz
+          retention-days: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chrome webkit
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: interface-screenshots
+          path: test-results/**/interface-*.png
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-diagnostics
+          path: |
+            playwright-report/
+            test-results/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+  safari:
+    needs: web
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: /tmp/spendwise-pages
+      - run: |
+          mkdir -p build/web
+          tar -xf /tmp/spendwise-pages/artifact.tar -C build/web
+          sudo safaridriver --enable
+          python3 -m venv /tmp/spendwise-safari
+          /tmp/spendwise-safari/bin/pip install selenium==4.38.0
+          /tmp/spendwise-safari/bin/python browser_test/safari_smoke.py
+  deploy:
+    needs: web
+    # Explicitly authorized initial demo branch; other PRs cannot publish.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/phase-1-offline-ledger')
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - uses: actions/deploy-pages@v4
+        id: deployment
+      - name: Verify deployed app and SQLite assets
+        env:
+          DEMO_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 "$DEMO_URL" -o /tmp/spendwise-live.html
+          curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqlite3.wasm" -o /dev/null
+          curl -fsSL --retry 5 --retry-delay 5 "${DEMO_URL}sqflite_sw.js" -o /dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          assert '<base href="/spendwise-ai/">' in Path('/tmp/spendwise-live.html').read_text()
+          PY

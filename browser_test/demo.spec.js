@@ -1,0 +1,61 @@
+const {test, expect} = require('@playwright/test');
+
+async function enableAccessibility(page) {
+  // Flutter paints with CanvasKit; enable its standard accessibility tree.
+  const placeholder = page.locator('flt-semantics-placeholder');
+  await placeholder.waitFor({state: 'attached'});
+  await placeholder.evaluate(element => element.click());
+}
+
+test('synthetic ledger, editing and IndexedDB persistence', async ({page}) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto('./');
+  await enableAccessibility(page);
+  await expect(page.getByText('SYNTHETIC DEMO', {exact: false})).toBeVisible();
+  await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
+  await expect(page.getByRole('button', {name: /^Synthetic Credit Card /})).toBeVisible();
+  // Renaming exercises a browser SQLite write, rather than relying only on seed.
+  await page.getByRole('button', {name: /^Synthetic Wallet /}).click();
+  await expect(page.getByRole('heading', {name: 'Account history', exact: true})).toBeVisible();
+  await page.getByRole('button', {name: 'Rename account', exact: true}).click();
+  const nameField = page.getByRole('textbox', {name: /Account name/});
+  // Flutter replaces the semantics input on focus in WebKit. Use actual key
+  // events on the focused editor instead of filling its transient DOM proxy.
+  await nameField.click();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.type('Synthetic Demo Pocket', {delay: 30});
+  await page.keyboard.press('Tab');
+  await page.getByRole('button', {name: 'Save account', exact: true}).click();
+  await expect(page.getByRole('heading', {name: 'Synthetic Demo Pocket', exact: true})).toBeVisible();
+  await page.getByRole('button', {name: 'Back', exact: true}).click();
+  await expect(page.getByRole('button', {name: /^Synthetic Demo Pocket /})).toBeVisible();
+  await page.reload();
+  await enableAccessibility(page);
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
+  await expect(page.getByRole('button', {name: /^Synthetic Demo Pocket /})).toBeVisible();
+  await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('offline reload uses the cached app and browser database', async ({page, context, browserName}) => {
+  test.skip(browserName === 'webkit',
+    'Playwright WebKit offline emulation aborts navigation internally; actual Safari tests stop the server instead.');
+  await page.goto('./');
+  await enableAccessibility(page);
+  await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) {
+      await new Promise(resolve => navigator.serviceWorker.addEventListener('controllerchange', resolve, {once: true}));
+    }
+  });
+  await context.setOffline(true);
+  await page.reload();
+  await enableAccessibility(page);
+  await page.getByRole('button', {name: 'Accounts', exact: true}).click();
+  await expect(page.getByRole('button', {name: /^Synthetic Wallet /})).toBeVisible();
+  await expect(page.getByText('Net worth RM 5490.00', {exact: false})).toBeVisible();
+});
